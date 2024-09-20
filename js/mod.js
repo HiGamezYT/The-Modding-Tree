@@ -1,11 +1,11 @@
 let modInfo = {
-	name: "The ??? Tree",
+	name: "The Infinitree",
 	id: "mymod",
-	author: "nobody",
-	pointsName: "points",
+	author: "Idle Gaming",
+	pointsName: "energy",
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal (0), // Used for hard resets and new players
 	
 	offlineLimit: 1,  // In hours
 }
@@ -13,13 +13,13 @@ let modInfo = {
 // Set your version in num and name
 let VERSION = {
 	num: "0.0",
-	name: "Literally nothing",
+	name: "The Beta Mars",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
 	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+		- The mod is now in beta<br>
+		- Nothing else`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -33,7 +33,7 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
-	return true
+	return hasUpgrade("ba", 11)
 }
 
 // Calculate points/sec!
@@ -42,6 +42,12 @@ function getPointGen() {
 		return new Decimal(0)
 
 	let gain = new Decimal(1)
+	if (hasUpgrade("ba", 12)) gain = gain.times(1.5)
+	if (hasUpgrade("ba", 13)) gain = gain.times(2)
+	if (hasUpgrade("ba", 21)) gain = gain.times(2)
+	if (hasUpgrade('ba', 22)) gain = gain.times(upgradeEffect('ba', 22))
+	if (hasUpgrade('ba', 32)) gain = gain.times(upgradeEffect('ba', 32))
+
 	return gain
 }
 

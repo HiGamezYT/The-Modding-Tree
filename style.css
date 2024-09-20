@@ -16,9 +16,11 @@ body {
 	background-color: var(--background);
 	color: var(--color);
 	overflow: hidden;
-	--background: #0f0f0f;
+	--background: rgb(0, 0, 0);
 	--color: #dfdfdf;
 	--points: #ffffff;
+
+
 }
 
 html, body {
