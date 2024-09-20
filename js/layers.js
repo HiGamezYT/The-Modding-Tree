@@ -6,6 +6,7 @@ addLayer("ba", {
         unlocked: true,
 		points: new Decimal(0),
         rocks: new Decimal(0),
+        sand: new Decimal(0),
         half1: new Decimal(1)
     }},
     color: "#414241",
@@ -58,6 +59,9 @@ addLayer("ba", {
                 ["display-text",
                 function() {return 'You have ' + format(player.ba.rocks) + ' Mars Rocks'},
                 {"color": "red" , "font-size": "20px"}],
+                ["display-text",
+                function() {return 'You have ' + format(player.ba.sand) + ' Mars Sand'},
+                {"color": "beige" , "font-size": "20px"}],
                 "blank",
                 "buyables"
             ],
@@ -71,7 +75,8 @@ addLayer("ba", {
                 function() {return 'You have ' + format(player.ba.rocks) + ' Mars Rocks'},
                 {"color": "red" , "font-size": "20px"}],
                 "blank",
-                ["row",[["upgrade",31],["upgrade",32]]]
+                ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35]]],
+                ["row",[["upgrade",41]]]
             ],
             
         }
@@ -101,13 +106,41 @@ addLayer("ba", {
         
     },
     buyables: {
+        showRespec: true,
+        respec() { // Optional, reset things and give back your currency. Having this function makes a respec button appear
+           
+            resetBuyables(this.layer)
+            player.ba.rocks = new Decimal(0)
+            player.ba.sand = new Decimal(0) // Force a reset
+           
+        },
+        respecText: "RESPEC/SEARCH AGAIN", // Text on Respec button, optional
+        respecMessage: "This will reset all mars materials!",
+       
         11: {
             title: "Mars Rocks", // Optional, displayed at the top in a larger font
             cost(x) { return new Decimal(35).mul(x).mul(1.25).div(player.ba.half1) },
             display() { // Everything else displayed in the buyable button after the title
                 return " You explore and only find mars rocks the most common thing in the vast expanse of mars\n\
-                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power \n\
-                Amount:"  + player[this.layer].buyables[this.id] + " Mars Rocks"
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power"
+                
+            },
+            respecText: "RESPEC/SEARCH AGAIN", // Text on Respec button, optional
+            respecMessage: "You will lose all mars material if you do this.",
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ba.rocks = player.ba.rocks.add(1)
+            }
+        },
+        12: {
+            title: "Mars Sand", // Optional, displayed at the top in a larger font
+            cost(x) { return new Decimal(100).mul(x).mul(1.3)},
+            display() { // Everything else displayed in the buyable button after the title
+                return " You explore and only find mars rocks the most common thing in the vast expanse of mars\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power"
                 
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
@@ -115,12 +148,14 @@ addLayer("ba", {
                 cost = tmp[this.layer].buyables[this.id].cost
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
-                player.ba.rocks = player.ba.rocks.add(1)
+                player.ba.sand = player.ba.sand.add(1)
             },
-
+            unlocked() { return  (hasUpgrade("ba",33))}, 
         },
-    },
-
+            
+           
+        },
+    
     upgrades: {
         11: {
             title: "Fresh start",
@@ -186,6 +221,46 @@ addLayer("ba", {
             },
             effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
 
+        },
+        33: {
+            title: "New capabilities",
+            description: "The rovers are now able to pick up Mars sand",
+            cost: new Decimal(5),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",32))}
+        },
+        34: {
+            title: "Extensive Research",
+            description: "These mars rocks could be used to harvest so much energy... If only there were a way... (x3 energy gain)",
+            cost: new Decimal(7),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",33))}
+        },
+        35: {
+            title: "Potential",
+            description: "There has to be a way to refine these rocks into ores.. Or what if there are ores on mars! I have to start worrying about oxygen soon... (x3 energy gain again)",
+            cost: new Decimal(10),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",34))}
+        },
+        41: {
+            title: "Sand filter",
+            description: "Now that we have higher quality sand I can turn it into energy (Sand boosts energy)",
+            cost: new Decimal(3),
+            currencyInternalName: "sand",
+            currencyDisplayName: "Mars Sand",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",35))},
+            effect() {
+                return player.ba.sand.add(1).pow(0.5)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
         }
     }
 
@@ -246,6 +321,11 @@ addLayer("a", {
             name: "Powerful!",
             tooltip: "Get 350 pure power",
             done(){return player.ba.points.gte(350)}
+        },
+        15: {
+            name: "Sand. BUT MARS!",
+            tooltip: "Get 1 Mars Sand",
+            done(){return player.ba.sand.gte(1)}
         },
     }
 })
