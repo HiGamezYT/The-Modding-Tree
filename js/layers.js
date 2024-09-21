@@ -329,7 +329,7 @@ update() {
         44: {
             title: "Rock Drones",
             description: "Drones are now collecting rocks for you easir",
-            cost: new Decimal(20),
+            cost: new Decimal(10),
             currencyInternalName: "sand",
             currencyDisplayName: "Mars Sand",
             currencyLayer: "ba",
