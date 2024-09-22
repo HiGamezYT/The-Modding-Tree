@@ -12,14 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "The Beta Mars",
+	num: "0.1",
+	name: "Oxygen",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
 	<h3>v0.0</h3><br>
-		- The mod is now in beta<br>
-		- test`
+		- <br>
+		- `
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -51,6 +51,9 @@ function getPointGen() {
 	if (hasUpgrade("ba", 35)) gain = gain.times(3)
 	if (hasUpgrade('ba', 41)) gain = gain.times(upgradeEffect('ba', 41))
 	if (hasUpgrade('ba', 45)) gain = gain.times(upgradeEffect('ba', 45))
+	if (hasUpgrade('ba', 71)) gain = gain.times(upgradeEffect('ba', 71))
+	if (hasUpgrade('o', 13)) gain = gain.times(upgradeEffect('o', 13))
+	gain = gain.times(player.ba.water.div(2))
 	
 
 

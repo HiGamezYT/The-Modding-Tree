@@ -13,7 +13,10 @@ addLayer("ba", {
         sand: new Decimal(0),
         bact: new Decimal(0),
         half1: new Decimal(1),
-        as: new Decimal(0)
+        as: new Decimal(0),
+        bd1: new Decimal(3),
+        bdm: new Decimal(1),
+        water: new Decimal(1)
     }},
     color: "#414241",
     requires: new Decimal(5), // Can be a function that takes requirement increases into account
@@ -49,7 +52,7 @@ update() {
 
    
      if (hasUpgrade("ba",44))  player.ba.rocks = player.ba.rocks.add(0.01)
-     if (hasUpgrade("ba",52))  player.ba.rocks = player.ba.rocks.add(player.ba.bact.div(3))
+     if (hasUpgrade("ba",52))  player.ba.rocks = player.ba.rocks.add(player.ba.bact.div(player.ba.bd1).mul(player.ba.bdm))
      if (hasUpgrade("ba",53)) player.ba.sand = player.ba.sand.add(0.01)
      if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.div(3.5))
 },
@@ -80,6 +83,9 @@ update() {
                 ["display-text",
                 function() {return 'You have ' + format(player.ba.bact) + ' Bacteria Samples'},
                 {"color": "green" , "font-size": "20px"}],
+                ["display-text",
+                    function() {return 'You have ' + format(player.ba.water) + ' Water Molecules'},
+                    {"color": "cyan" , "font-size": "20px"}],
                 "blank",
                 "buyables"
             ],
@@ -98,8 +104,12 @@ update() {
                 ["display-text",
                 function() {return 'You have ' + format(player.ba.bact) + ' Bacteria Samples'},
                 {"color": "green" , "font-size": "20px"}],
+                ["display-text",
+                    function() {return 'You have ' + format(player.ba.water) + ' Water Molecules'},
+                    {"color": "cyan" , "font-size": "20px"}],
                 "blank",
                 ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35]]],
+                ["row",[["upgrade",71],["upgrade",72],["upgrade",73],["upgrade",74],["upgrade",75]]],
                 ["row",[["upgrade",41],["upgrade",42],["upgrade",43],["upgrade",44],["upgrade",45]]],
                 ["row",[["upgrade",51],["upgrade",52],["upgrade",53],["upgrade",54],["upgrade",55]]]
             ],
@@ -137,7 +147,8 @@ update() {
             resetBuyables(this.layer)
             player.ba.rocks = new Decimal(0)
             player.ba.sand = new Decimal(0)
-            player.ba.bact = new Decimal(0) // Force a reset
+            player.ba.bact = new Decimal(0)
+            player.ba.water = new Decimal(1) // Force a reset
            
         },
         respecText: "RESPEC/SEARCH AGAIN", // Text on Respec button, optional
@@ -197,6 +208,23 @@ update() {
             },
             unlocked() { return  (hasUpgrade("ba",43))}
         },
+        21: {
+            title: "Water Molecules", // Optional, displayed at the top in a larger font
+            cost(x) { return new Decimal(1e14).mul(x).mul(1.5)},
+            display() { // Everything else displayed in the buyable button after the title
+                return " In the air there are water molecules. They are very rare but will help enhance energy even further\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power"
+                
+            },
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ba.water = player.ba.water.add(1)
+            },
+            unlocked() { return  (hasUpgrade("ba",75))}
+        },
     },
     upgrades: {
         11: {
@@ -248,6 +276,15 @@ update() {
             unlocked() { return (hasUpgrade("ba",23))}, 
             onPurchase() {
                 player.ba.half1 = player.ba.half1.add(1)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",31)) color = "#A70000"
+                    return color
+                    
+                }
             }
         },
         32: {
@@ -258,6 +295,15 @@ update() {
             currencyDisplayName: "Mars rocks",
             currencyLayer: "ba",
             unlocked() { return (hasUpgrade("ba",31))}, 
+             style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",32)) color = "#A70000"
+                    return color
+                    
+                }
+            },
             effect() {
                 return player.ba.rocks.add(1).pow(0.3)
             },
@@ -271,7 +317,16 @@ update() {
             currencyInternalName: "rocks",
             currencyDisplayName: "Mars rocks",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",32))}
+            unlocked() { return (hasUpgrade("ba",32))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",33)) color = "#A70000"
+                    return color
+                    
+                }
+            }
         },
         34: {
             title: "Extensive Research",
@@ -280,7 +335,16 @@ update() {
             currencyInternalName: "rocks",
             currencyDisplayName: "Mars rocks",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",33))}
+            unlocked() { return (hasUpgrade("ba",33))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",34)) color = "#A70000"
+                    return color
+                    
+                }
+            }
         },
         35: {
             title: "Potential",
@@ -289,7 +353,120 @@ update() {
             currencyInternalName: "rocks",
             currencyDisplayName: "Mars rocks",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",34))}
+            unlocked() { return (hasUpgrade("ba",34))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",35)) color = "#A70000"
+                    return color
+                    
+                }
+            }
+        },
+        71: {
+            title: "Rock energy conversion I",
+            description: "The mars rocks true potential is drawing ever closer I just need some sort of amplifier... (Mars rocks boost energy gain)",
+            cost: new Decimal(5e6),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("o",12))},
+            effect() {
+                return player.ba.rocks.add(1).pow(0.4)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",71)) color = "#A70000"
+                    return color
+                    
+                }
+            }
+        },
+        72: {
+            title: "Rock energy conversion II",
+            description: "Bacteria seems to be more powerful its mulitplying so quickly! (Bacteria boosts mars rocks better)",
+            cost: new Decimal(1e7),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("o",12))},
+            onPurchase() {
+                player.ba.bd1 = new Decimal(2.5)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",72)) color = "#A70000"
+                    return color
+                    
+                }
+            }
+        },
+        73: {
+            title: "Rock energy conversion III",
+            description: "Bacteria... power... YES.... (Bacteria boosts mars rocks even better)",
+            cost: new Decimal(1.5e7),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("o",12))},
+            onPurchase() {
+                player.ba.bd1 = new Decimal(2)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",73)) color = "#A70000"
+                    return color
+                    
+                }
+            }
+        },
+        74: {
+            title: "Rock energy conversion IV",
+            description: "This is the maximum potential... finally! (Bacteria boosts mars rocks much better)",
+            cost: new Decimal(3e7),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("o",12))},
+            onPurchase() {
+                player.ba.bd1 = new Decimal(1.5)
+                player.ba.bdm = new Decimal(5)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",74)) color = "#A70000"
+                    return color
+                    
+                }
+            }
+        },
+        75: {
+            title: "Water Molecules",
+            description: "There seems to be some water molecules around the place (Unlock new mars material)",
+            cost: new Decimal(6e7),
+            currencyInternalName: "rocks",
+            currencyDisplayName: "Mars rocks",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("o",12))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FF8585"
+                    if (hasUpgrade("ba",75)) color = "#A70000"
+                    return color
+                    
+                }
+            }
         },
         41: {
             title: "Sand filter",
@@ -299,6 +476,15 @@ update() {
             currencyDisplayName: "Mars Sand",
             currencyLayer: "ba",
             unlocked() { return (hasUpgrade("ba",33))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FFFED6"
+                    if (hasUpgrade("ba",41)) color = "#D0BE8A"
+                    return color
+                    
+                }
+            },
             effect() {
                 return player.ba.sand.add(1).pow(0.5)
             },
@@ -314,7 +500,16 @@ update() {
             unlocked() { return (hasUpgrade("ba",34))},
             onPurchase() {
                 player.ba.half1 = player.ba.half1.add(1)
-            }
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#FFFED6"
+                    if (hasUpgrade("ba",42)) color = "#D0BE8A"
+                    return color
+                    
+                }
+            },
            
         },
         43: {
@@ -324,7 +519,16 @@ update() {
             currencyInternalName: "sand",
             currencyDisplayName: "Mars Sand",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",34))}
+            unlocked() { return (hasUpgrade("ba",34))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FFFED6"
+                    if (hasUpgrade("ba",43)) color = "#D0BE8A"
+                    return color
+                    
+                }
+            },
         },
         44: {
             title: "Rock Drones",
@@ -333,7 +537,16 @@ update() {
             currencyInternalName: "sand",
             currencyDisplayName: "Mars Sand",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",34))}
+            unlocked() { return (hasUpgrade("ba",34))},
+            style: {
+                "background-color"() {
+
+                    let color = "#FFFED6"
+                    if (hasUpgrade("ba",44)) color = "#D0BE8A"
+                    return color
+                    
+                }
+            },
         },
         45: {
             title: "High quality sand",
@@ -346,6 +559,15 @@ update() {
             effect() {
                 return player.ba.sand.add(1).pow(0.55)
             },
+            style: {
+                "background-color"() {
+
+                    let color = "#FFFED6"
+                    if (hasUpgrade("ba",45)) color = "#D0BE8A"
+                    return color
+                    
+                }
+            },
             effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
         },
         51: {
@@ -355,7 +577,16 @@ update() {
             currencyInternalName: "bact",
             currencyDisplayName: "Bacteria Samples",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",43))}
+            unlocked() { return (hasUpgrade("ba",43))},
+            style: {
+                "background-color"() {
+
+                    let color = "#84FF97"
+                    if (hasUpgrade("ba",51)) color = "#0E8A0E"
+                    return color
+                    
+                }
+            },
         },
         52: {
             title: "Bacteria Rocks",
@@ -364,7 +595,16 @@ update() {
             currencyInternalName: "bact",
             currencyDisplayName: "Bacteria Samples",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",43))}
+            unlocked() { return (hasUpgrade("ba",43))},
+            style: {
+                "background-color"() {
+
+                    let color = "#84FF97"
+                    if (hasUpgrade("ba",52)) color = "#0E8A0E"
+                    return color
+                    
+                }
+            },
         },
         53: {
             title: "Sand Drones",
@@ -373,7 +613,16 @@ update() {
             currencyInternalName: "bact",
             currencyDisplayName: "Bacteria Samples",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",43))}
+            unlocked() { return (hasUpgrade("ba",43))},
+            style: {
+                "background-color"() {
+
+                    let color = "#84FF97"
+                    if (hasUpgrade("ba",53)) color = "#0E8A0E"
+                    return color
+                    
+                }
+            },
         },
         54: {
             title: "New POWER",
@@ -382,7 +631,16 @@ update() {
             currencyInternalName: "bact",
             currencyDisplayName: "Bacteria Samples",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",43))}
+            unlocked() { return (hasUpgrade("ba",43))},
+            style: {
+                "background-color"() {
+
+                    let color = "#84FF97"
+                    if (hasUpgrade("ba",54)) color = "#0E8A0E"
+                    return color
+                    
+                }
+            },
         },
         55: {
             title: "Bacteria Infected Sand",
@@ -394,7 +652,16 @@ update() {
             unlocked() { return (hasUpgrade("ba",43))},
             onPurchase() {
                 player.ba.as = player.ba.as.add(1)
-            }
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#84FF97"
+                    if (hasUpgrade("ba",55)) color = "#0E8A0E"
+                    return color
+                    
+                }
+            },
         },
         61: {
             title: "ROCK POTENTIAL ULTRA",
@@ -433,7 +700,8 @@ addLayer("o", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
-        ot: new Decimal(100)
+        ot: new Decimal(100),
+        ol: new Decimal(0.1)
     }},
     color: "#1A7C9E",
     requires: new Decimal(5e11), // Can be a function that takes requirement increases into account
@@ -456,6 +724,12 @@ addLayer("o", {
     layerShown() {
         if (hasUpgrade("ba",63)) return true
     },
+    update(diff) {
+        player.o.ot = player.o.ot.sub(player.o.ol*diff)
+        if (player.o.ot < 1) player.o.ot = new Decimal(0)
+        if (player.o.ot < 1) player.points = new Decimal(0)
+        
+    },
     branches: ['ba'],
     resetsNothing() {return true},
     bars: {
@@ -465,36 +739,87 @@ addLayer("o", {
         textStyle: {'text-shadow': '0px 0px 2px #000000'},
 
         borderStyle() {return {'border-width': "4px"}},
-        direction: DOWN,
+        direction: UP,
         width: 60,
         height: 250,
         progress() {
-            return 100
+            return player.o.ot.div(100)
         },
         display() {
-            return formatWhole((player.o.ot))
+            return formatWhole((player.o.ot.div(1)).min(100))
         },
-        unlocked: true,
-
+        unlocked: true
     },
 },
+clickables: {
+    11: {
+        display() {return "RESET OXYGEN TANKS"},
+        canClick() {if (player.o.points.gte(0)) return true},
+        onClick() {return player.o.ot = new Decimal(100)}
+        
+    }
+    
+},
     tabFormat: {
-        "OXYGEN": {
+        "IMPORTANT": {
             content: [
                 ["infobox", "oxygeninfo"],
                 "main-display",
                 "prestige-button",
                 "blank",
-                ["bar", "oxygentank"], "blank"
+                ["bar", "oxygentank"], "blank",
+                "clickables"
             ],
             
         },
+        "OXYGEN UPGRADES": {
+            content: [
+                ["infobox", "oxygeninfo2"],
+                "blank",
+                ["row",[["upgrade",11],["upgrade",12],
+                ["upgrade",13]]]
+                
+            ],
+            
+        },
+    },
+    upgrades: {
+        11: {
+            title: "Tank repair",
+            description: "Now that the tank has been repaired the oxygen wont run out quickly",
+            cost: new Decimal(1),
+            onPurchase() {
+                player.o.ol = new Decimal(0.09)
+            }
+        },
+        12: {
+            title: "New Research",
+            description: "Now we can explore and collect new samples. (Unlock new mars materials upgrades)",
+            cost: new Decimal(2)
+        },
+        13: {
+            title: "Oxygen Flow",
+            description: "Oxygen flows through energy enhancing it (Oxygen boosts energy)",
+            cost: new Decimal(10),
+            effect() {
+                return player.o.points.add(1).pow(0.5)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        }
     },
     infoboxes: {
         oxygeninfo: {
             title: "DOCUMENT 000000O1",
             titleStyle: {'color': '#2D6BB1'},
-            body() { return "Your starting to run out of oxygen but there is no need to worry. When your oxygen runs out everything your doing comes to a halt but you can refresh your oxygen tanks very easily but that will be a tedious task so its time to grow plants!" },
+            body() { return "Your starting to run out of oxygen but there is no need to worry. When your oxygen runs out your energy production comes to a halt but you can refresh your oxygen tanks very easily but that will be a tedious task so its time to grow plants!" },
+            bodyStyle: {'background-color': "#000756"}
+            
+            
+        },
+        oxygeninfo2: {
+            title: "DOCUMENT 000000O2",
+            titleStyle: {'color': '#2D6BB1'},
+            body() { return "Well its gonna be too difficult to constantly refresh your oxygen tanks so with the new amounts of energy you harvested its time to make this easier." },
             bodyStyle: {'background-color': "#000756"}
             
             
@@ -604,6 +929,11 @@ addLayer("a", {
             name: "Viral infection",
             tooltip: "Get 2000 Bacteria samples",
             done(){return player.ba.bact.gte(2000)} 
+        },
+        27: {
+            name: "AIR!",
+            tooltip: "Get 1 Oxygen",
+            done(){return player.o.points.gte(1)} 
         }
     }
 })
