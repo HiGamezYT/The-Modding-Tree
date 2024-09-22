@@ -12,8 +12,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "Oxygen",
+	num: "0.11",
+	name: "More",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -52,8 +52,12 @@ function getPointGen() {
 	if (hasUpgrade('ba', 41)) gain = gain.times(upgradeEffect('ba', 41))
 	if (hasUpgrade('ba', 45)) gain = gain.times(upgradeEffect('ba', 45))
 	if (hasUpgrade('ba', 71)) gain = gain.times(upgradeEffect('ba', 71))
+	if (hasUpgrade('ba', 101)) gain = gain.times(upgradeEffect('ba', 101))
+	if (hasUpgrade('ba', 111)) gain = gain.times(upgradeEffect('ba', 111))
 	if (hasUpgrade('o', 13)) gain = gain.times(upgradeEffect('o', 13))
 	gain = gain.times(player.ba.water.div(2))
+	gain = gain.times(player.ba.dirt.div(1.75))
+	
 	
 
 
