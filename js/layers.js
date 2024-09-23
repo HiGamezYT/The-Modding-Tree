@@ -354,12 +354,7 @@ update() {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             style: {
-                "background-color"() {
-
-                    let color = "#C800FD"
-                    return color
-                    
-                }
+                "background": "radial-gradient(purple, pink)" ,
             },
             buy() {
                 cost = tmp[this.layer].buyables[this.id].cost
@@ -428,6 +423,7 @@ update() {
                     return color
                     
                 }
+            
             },
             
         },
@@ -1221,7 +1217,7 @@ update() {
             currencyInternalName: "dirt",
             currencyDisplayName: "Mars Dirt",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",95))},
+            unlocked() { return (hasUpgrade("ba",85))},
             effect() {
                 return player.ba.water.add(1).pow(0.5)
             },
@@ -1243,7 +1239,7 @@ update() {
             currencyInternalName: "dirt",
             currencyDisplayName: "Mars Dirt",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",95))},
+            unlocked() { return (hasUpgrade("ba",85))},
             style: {
                 "background-color"() {
 
@@ -1261,7 +1257,7 @@ update() {
             currencyInternalName: "dirt",
             currencyDisplayName: "Mars Dirt",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",95))},
+            unlocked() { return (hasUpgrade("ba",85))},
             effect() {
                 return player.ba.water.add(1).pow(0.4)
             },
@@ -1283,7 +1279,7 @@ update() {
             currencyInternalName: "dirt",
             currencyDisplayName: "Mars Dirt",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",95))},
+            unlocked() { return (hasUpgrade("ba",85))},
             style: {
                 "background-color"() {
 
@@ -1301,7 +1297,7 @@ update() {
             currencyInternalName: "dirt",
             currencyDisplayName: "Mars Dirt",
             currencyLayer: "ba",
-            unlocked() { return (hasUpgrade("ba",95))},
+            unlocked() { return (hasUpgrade("ba",85))},
             style: {
                 "background-color"() {
 
@@ -1498,7 +1494,8 @@ addLayer("o", {
         unlocked: true,
 		points: new Decimal(0),
         ot: new Decimal(100),
-        ol: new Decimal(0.1)
+        ol: new Decimal(0.1),
+        olmod: new Decimal(0.1)
     }},
     color: "#1A7C9E",
     requires: new Decimal(5e11), // Can be a function that takes requirement increases into account

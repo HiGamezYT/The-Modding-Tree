@@ -70,7 +70,7 @@ h1, h2, h3, b, input {
 	width: 100px;
 	border: var(--hqProperty1);
 	border-color: rgba(0, 0, 0, 0.125);
-	border-radius: 50%;
+	border-radius: 30%;
 	box-shadow: var(--hqProperty2a), var(--hqProperty2b);
 	font-size: 40px;
 	font-family: "Lucida Console", "Courier New", monospace;
@@ -228,7 +228,7 @@ h1, h2, h3, b, input {
 .reset {
 	height: 120px;
 	width: 180px;
-	border-radius: 25%;
+	border-radius: 10%;
 	border: 4px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 }
@@ -236,7 +236,7 @@ h1, h2, h3, b, input {
 .upg {
 	min-height: 120px;
 	width: 120px;
-	border-radius: 25%;
+	border-radius: 15%;
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 	font-size: 10px;
@@ -246,7 +246,7 @@ h1, h2, h3, b, input {
 .achievement {
 	height: 90px;
 	width: 90px;
-	border-radius: 25%;
+	border-radius: 0%;
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 	font-size: 10px;
@@ -261,7 +261,7 @@ h1, h2, h3, b, input {
 .buyable {
 	height: 200px;
 	width: 200px;
-	border-radius: 25%;
+	border-radius: 15%;
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
 	font-size: 10px;
