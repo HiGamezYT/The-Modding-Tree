@@ -20,7 +20,14 @@ addLayer("ba", {
         bdm2: new Decimal(1),
         water: new Decimal(1),
         dirt: new Decimal(1),
-        air: new Decimal(1)
+        air: new Decimal(1),
+        en: new Decimal(0),
+        ea: new Decimal(1),
+        emb: new Decimal(1), // Mars rocks enhancement boost
+        emb2: new Decimal(1),
+        obdm: new Decimal(0),
+        obdm2: new Decimal(0),
+        bdm3: new Decimal(1)
       
     }},
     color: "#414241",
@@ -37,6 +44,7 @@ addLayer("ba", {
         if (hasUpgrade(this.layer, 84)) mult = mult.times(upgradeEffect(this.layer, 84))
         if (hasUpgrade("o", 14)) mult = mult.times(upgradeEffect("o", 14))
         if (hasUpgrade("ba", 102)) mult = mult.times(upgradeEffect("ba", 102))
+        if (hasUpgrade("ba", 113)) mult = mult.times(upgradeEffect("ba", 113))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -51,21 +59,34 @@ addLayer("ba", {
     doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
         if(layers[resettingLayer].row > this.row) return;
         layerDataReset(this.layer.points);
+        let keptUpgrades = []
+        if (hasUpgrade(this.layer, 115)) keptUpgrades.push(115)
         let keep = [];
         if (layers[resettingLayer].row > this.row) layerDataReset(this.layer, keep)
-},
+            player[this.layer].upgrades.push(keptUpgrades)
+    
+},  
 
 passiveGeneration(){return hasUpgrade("ba",51)},
 update() {
 
    
      if (hasUpgrade("ba",44))  player.ba.rocks = player.ba.rocks.add(0.01)
-     if (hasUpgrade("ba",52))  player.ba.rocks = player.ba.rocks.add(player.ba.bact.div(player.ba.bd1).mul(player.ba.bdm))
+     if (hasUpgrade("ba",52))  player.ba.rocks = player.ba.rocks.add(player.ba.bact.mul(player.ba.emb).div(player.ba.bd1).mul(player.ba.bdm))
      if (hasUpgrade("ba",53)) player.ba.sand = player.ba.sand.add(0.01)
      if (hasUpgrade("ba",91)) player.ba.bact = player.ba.bact.add(0.1)
      if (hasUpgrade("ba",112)) player.ba.dirt = player.ba.dirt.add(0.1)
-     if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points)
-     if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.div(player.ba.bd2).mul(player.ba.bdm2))
+     if (hasUpgrade("ba",131)) player.ba.emb = player.ba.en
+     if (hasUpgrade("ba",131)) player.ba.emb2 = player.ba.en.div(1.5)
+     if (hasUpgrade("ba",114)) player.ba.water = player.ba.water.add(0.1)
+     if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points.mul(player.ba.bdm3))
+     if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.mul(player.ba.emb2).div(player.ba.bd2).mul(player.ba.bdm2))
+     if (player.ba.bdm2 == 0) player.ba.bdm2.add(2)
+     if (hasUpgrade("ba",141)) player.ba.air = player.ba.air.add(0.1)
+     if (hasUpgrade("ba",142)) player.ba.dirt = player.ba.dirt.add(player.ba.air.mul(player.ba.air.div(1e3)))
+     if (hasUpgrade("ba",143)) player.ba.water = player.ba.water.add(player.ba.air.mul(player.ba.air.div(1e4)))
+     if (hasUpgrade("ba",144)) player.ba.air = player.ba.air.add(player.ba.air.div(100))
+     if (player.ba.air.gte(1e12)) player.ba.air = new Decimal(1e12)
 },
 
     tabFormat: {
@@ -101,10 +122,12 @@ update() {
                     function() {return 'You have ' + format(player.ba.dirt) + ' Mars Dirt'},
                     {"color": "brown" , "font-size": "20px"}],
                 ["display-text",
-                        function() {return 'You have ' + format(player.ba.air) + 'Air'},
+                        function() {return 'You have ' + format(player.ba.air) + ' Air'},
                         {"color": "white" , "font-size": "20px"}],
                 "blank",
-                "buyables"
+                "respec-button",
+                ["row",[["buyable",11],["buyable",12],["buyable",13]]],
+                ["row",[["buyable",21],["buyable",22],["buyable",23]]],
             ],
             
         },
@@ -128,10 +151,10 @@ update() {
                         function() {return 'You have ' + format(player.ba.dirt) + ' Mars Dirt'},
                         {"color": "brown" , "font-size": "20px"}],
                ["display-text",
-                   function() {return 'You have ' + format(player.ba.air) + 'Air'},
+                   function() {return 'You have ' + format(player.ba.air) + ' Air'},
                     {"color": "white" , "font-size": "20px"}],
                 "blank",
-                "clickables",
+                ["row",[["clickable",11]]],
                 "blank",
                 ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35]]],
                 ["row",[["upgrade",71],["upgrade",72],["upgrade",73],["upgrade",74],["upgrade",75]]],
@@ -140,9 +163,27 @@ update() {
                 ["row",[["upgrade",51],["upgrade",52],["upgrade",53],["upgrade",54],["upgrade",55]]],
                 ["row",[["upgrade",91],["upgrade",92],["upgrade",93],["upgrade",94],["upgrade",95]]],
                 ["row",[["upgrade",101],["upgrade",102],["upgrade",103],["upgrade",104],["upgrade",105]]],
-                ["row",[["upgrade",111],["upgrade",112]]]
+                ["row",[["upgrade",111],["upgrade",112],["upgrade",113],["upgrade",114],["upgrade",115]]],
+                ["row",[["upgrade",141],["upgrade",142],["upgrade",143],["upgrade",144],["upgrade",145]]]
             ],
             
+        },
+        "Enhancements": {
+            unlocked() {return (hasUpgrade("ba", 115))},
+            content: [
+                ["infobox", "enhance"],
+                ["display-text",
+                    function() {return 'You have ' + format(player.ba.en) + ' Enhancement Crystals'},
+                     {"color": "purple" , "font-size": "20px"}],
+                ["row",[["buyable",51]]],
+                "blank",
+                ["row",[["clickable",21]]],
+                "blank",
+                ["row",[["clickable",31],["clickable",32],["clickable",33]]],
+                "blank",
+                "blank",
+                ["row",[["upgrade",131],["upgrade",132],["upgrade",133],["upgrade",134]]]
+            ]
         }
     },
     infoboxes: {
@@ -167,18 +208,26 @@ update() {
             bodyStyle: {'background-color': "#4A2121"}
             
         },
+        enhance: {
+            title: "DOCUMENT ENH000001",
+            titleStyle: {'color': '#000000'},
+            body() { return "These are enhancement crystals. They will enhance materials and will make it stronger. (When you respec it will also reset enhancement crystals)" },
+            bodyStyle: {'background-color': "#4A2121"}
+            
+        },
         
     },
     buyables: {
         showRespec: true,
         respec() { // Optional, reset things and give back your currency. Having this function makes a respec button appear
-           
-            resetBuyables(this.layer)
+
+            resetBuyables(this.layer),
             player.ba.rocks = new Decimal(1)
             player.ba.sand = new Decimal(1)
             player.ba.bact = new Decimal(1)
             player.ba.water = new Decimal(1)
             player.ba.dirt = new Decimal(1)
+            player.ba.en = new Decimal(1)
             player.ba.air = new Decimal(1) // Force a reset
            
         },
@@ -271,13 +320,13 @@ update() {
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
                 player.ba.dirt = player.ba.dirt.add(1)
             },
-            unlocked() { return  (hasUpgrade("ba",85))}
+            unlocked() { return  (hasUpgrade("ba",85)) || (hasUpgrade("ba",111))}
         },
         23: {
             title: "Air", // Optional, displayed at the top in a larger font
             cost(x) { return new Decimal(1e25).mul(x).mul(4)},
             display() { // Everything else displayed in the buyable button after the title
-                return " The ground is a simple combination of molecules but this can be harvested for energy (dirt boosts energy gain)\n\
+                return " Air is everywhere (Air boosts energy gain)\n\
                  Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power"
                 
             },
@@ -289,13 +338,132 @@ update() {
                 player.ba.air = player.ba.air.add(1)
             },
             unlocked() { return  (hasUpgrade("ba",95))}
+        },
+        51: {
+            title: "ENHANCEMENT CRYSTAL", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e29)
+                let amt = getBuyableAmount("ba", 51)
+                let exp = amt.div(10)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Enhancement crystals resets all mars materials are you sure you want to get one?\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure Power"
+                
+            },
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            style: {
+                "background-color"() {
+
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ba.en = player.ba.en.add(1)
+                player.ba.rocks = new Decimal(0)
+                player.ba.sand = new Decimal(0)
+                player.ba.bact = new Decimal(0)
+                player.ba.air = new Decimal(0)
+                player.ba.water = new Decimal(0)
+                player.ba.dirt = new Decimal(0)
+               
+            }
         }
     },
     clickables: {
         11: {
             display() {return "RESET UPGRADES"},
             canClick() {return true},
-            onClick() {return player.ba.upgrades = ["reset"]},
+            onClick() {
+                player.ba.upgrades = ["reset"]
+                player.ba.as = player.ba.as = new Decimal(0)
+            },
+            
+        },
+
+        21: {
+            display() {return "RESET ENHANCEMENTS (THIS WILL RESET ALL MATERIALS)"},
+            canClick() {if (player.ba.ea == 1) return true},
+            onClick() {
+                player.ba.ea = new Decimal(0)
+                player.ba.en = player.ba.en.add(1)
+                player.ba.bdm = player.ba.obdm
+                player.ba.bdm2 = player.ba.obdm2
+                player.ba.rocks = player.ba.rocks = new Decimal(1)
+                player.ba.sand = player.ba.sand = new Decimal(1)
+                player.ba.bact = player.ba.bact = new Decimal(1)
+                player.ba.air = player.ba.air = new Decimal(1)
+                player.ba.dirt = player.ba.dirt = new Decimal(1)
+                player.ba.water = player.ba.water = new Decimal(1)
+                player.ba.bdm3 = player.ba.bdm3 = new Decimal(1)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        31: {
+            display() {return "MARS ROCK ENHANCEMENT"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.obdm = new Decimal(player.ba.bdm)
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.bdm = player.ba.bdm = new Decimal(1e9)
+                    },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        32: {
+            display() {return "MARS SAND ENHANCEMENT"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.obdm2 = new Decimal(player.ba.bdm2)
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.bdm2 = player.ba.bdm2 = new Decimal(1e9)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        33: {
+            display() {return "BACTERIA SAMPLES ENHANCEMENT"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.bdm3 = player.ba.bdm3 = new Decimal(100)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
             
         }
         
@@ -607,7 +775,7 @@ update() {
         },
         44: {
             title: "Rock Drones",
-            description: "Drones are now collecting rocks for you easir",
+            description: "Drones are now collecting rocks for you easier",
             cost: new Decimal(10),
             currencyInternalName: "sand",
             currencyDisplayName: "Mars Sand",
@@ -1086,6 +1254,212 @@ update() {
                 }
             },
         },
+        113: {
+            title: "Pure Dirt Power",
+            description: "The dirt enhances pure energy too (dirt boosts pure energy)",
+            cost: new Decimal(650),
+            currencyInternalName: "dirt",
+            currencyDisplayName: "Mars Dirt",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",95))},
+            effect() {
+                return player.ba.water.add(1).pow(0.4)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+            style: {
+                "background-color"() {
+
+                    let color = "#8A5B4C"
+                    if (hasUpgrade("ba",113)) color = "#A0330F"
+                    return color
+                    
+                }
+            },
+        },
+        114: {
+            title: "Automatic water collection",
+            description: "Drones collect water molecules (gain 0.1 water molecule/s)",
+            cost: new Decimal(800),
+            currencyInternalName: "dirt",
+            currencyDisplayName: "Mars Dirt",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",95))},
+            style: {
+                "background-color"() {
+
+                    let color = "#8A5B4C"
+                    if (hasUpgrade("ba",114)) color = "#A0330F"
+                    return color
+                    
+                }
+            },
+        },
+        115: {
+            title: "ENHANCEMENT",
+            description: "with these machines I can enhance the materials (Unlock the enhancement tab)",
+            cost: new Decimal(1e3),
+            currencyInternalName: "dirt",
+            currencyDisplayName: "Mars Dirt",
+            currencyLayer: "ba",
+            unlocked() { return (hasUpgrade("ba",95))},
+            style: {
+                "background-color"() {
+
+                    let color = "#8A5B4C"
+                    if (hasUpgrade("ba",115)) color = "#A0330F"
+                    return color
+                    
+                }
+            },
+        },
+        131: {
+            title: "MAXIMIZE I",
+            description: "Enhancement cystals enhance mars rocks",
+            cost: new Decimal(5),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+             effectDisplay() { return format(player.ba.en)+"x" }, // Add formatting to the effect
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",131)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+        },
+        132: {
+            title: "MAXIMIZE II",
+            description: "Enhancement cystals enhance mars sand",
+            cost: new Decimal(10),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+             effectDisplay() { return format(player.ba.en.div(1.5)) +"x" }, // Add formatting to the effect
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",132)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+        },
+        133: {
+            title: "BOOST I",
+            description: "Boost sand",
+            cost: new Decimal(3),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            onPurchase() {
+                player.ba.bdm2 = player.ba.bdm2 = new Decimal(1e3)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",133)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+        },
+        134: {
+            title: "BOOST II",
+            description: "Boost mars rocks",
+            cost: new Decimal(15),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            onPurchase() {
+                player.ba.bdm = player.ba.bdm.add(1e6)
+            },
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",134)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+        },
+        141: {
+            title: "Air flow",
+            description: "Air is automatically collected (gain 0.1 air/s)",
+            cost: new Decimal(50),
+            currencyInternalName: "air",
+            currencyDisplayName: "Air",
+            currencyLayer: "ba",
+            unlocked() {hasUpgrade("ba",95)},
+            style: {
+                "background-color"() {
+
+                    let color = "#FDFFFE"
+                    if (hasUpgrade("ba",141)) color = "#BFBFBF"
+                    return color
+                    
+                }
+            },
+        },
+        142: {
+            title: "Dirt flow",
+            description: "Air flows through the dirt making the dirt stronger??? idk (Air boosts dirt)",
+            cost: new Decimal(75),
+            currencyInternalName: "air",
+            currencyDisplayName: "Air",
+            currencyLayer: "ba",
+            unlocked() {hasUpgrade("ba",95)},
+            style: {
+                "background-color"() {
+
+                    let color = "#FDFFFE"
+                    if (hasUpgrade("ba",142)) color = "#BFBFBF"
+                    return color
+                    
+                }
+            },
+        },
+        143: {
+            title: "Water flow",
+            description: "Air flows through the water making the water store more energy (Air boosts water)",
+            cost: new Decimal(200),
+            currencyInternalName: "air",
+            currencyDisplayName: "Air",
+            currencyLayer: "ba",
+            unlocked() {hasUpgrade("ba",95)},
+            style: {
+                "background-color"() {
+
+                    let color = "#FDFFFE"
+                    if (hasUpgrade("ba",143)) color = "#BFBFBF"
+                    return color
+                    
+                }
+            },
+        },
+        144: {
+            title: "Flowing flow",
+            description: "Air flows through the air making the air store more energy  (Air boosts air)",
+            cost: new Decimal(500),
+            currencyInternalName: "air",
+            currencyDisplayName: "Air",
+            unlocked() {hasUpgrade("ba",95)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDFFFE"
+                    if (hasUpgrade("ba",144)) color = "#BFBFBF"
+                    return color
+                    
+                }
+            },
+        },
         61: {
             title: "ROCK POTENTIAL ULTRA",
             description: "The rocks are so strong. Who knew that they would make enough energy to keep the lights on to a city for a week! (Mars rocks boost Pure power)",
@@ -1155,6 +1529,7 @@ addLayer("o", {
     },
     branches: ['ba'],
     resetsNothing() {return true},
+    canBuyMax() {return hasUpgrade("o",15)},
     bars: {
     oxygentank: {
         fillStyle: {'background-color' : "#2D6BB1"},
@@ -1199,7 +1574,7 @@ clickables: {
             content: [
                 ["infobox", "oxygeninfo2"],
                 "blank",
-                ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14]]]
+                ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14],["upgrade",15]]]
                 
             ],
             
@@ -1236,7 +1611,12 @@ clickables: {
                 return player.o.points.add(1).pow(0.4)
             },
             effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
-        }
+        },
+        15: {
+            title: "SUPER TANK DELUXE",
+            description: "This new tank can hold so much oxygen! (You can max buy oxygen)",
+            cost: new Decimal(330)
+        },
     },
     infoboxes: {
         oxygeninfo: {
@@ -1368,8 +1748,8 @@ addLayer("a", {
         },
         31: {
             name: "Water",
-            tooltip: "Get 1 water molecule",
-            done(){return player.ba.water.gte(1)} 
+            tooltip: "Get 5 water molecules",
+            done(){return player.ba.water.gte(5)} 
         },
         32: {
             name: "Full tank",
@@ -1383,8 +1763,8 @@ addLayer("a", {
         },
         34: {
             name: "Just dirt.",
-            tooltip: "Get 1 Dirt",
-            done(){return player.ba.dirt.gte(1)} 
+            tooltip: "Get 5 Mars Dirt",
+            done(){return player.ba.dirt.gte(5)} 
         },
         35: {
             name: "MULTIPLY",
@@ -1398,8 +1778,23 @@ addLayer("a", {
         },
         37: {
             name: "Who's the real one?",
-            tooltip: "Get 1 air",
-            done(){return player.ba.air.gte(1)} 
+            tooltip: "Get 5 air",
+            done(){return player.ba.air.gte(5)} 
+        },
+        41: {
+            name: "Enhance!",
+            tooltip: "Get 5 enhancement crystals",
+            done(){return player.ba.en.gte(5)} 
+        },
+        42: {
+            name: "Enhancements",
+            tooltip: "Get 15 enhancement crystals",
+            done(){return player.ba.en.gte(15)} 
+        },
+        43: {
+            name: "Fresh air",
+            tooltip: "Get 500 oxygen",
+            done(){return player.o.points.gte(500)} 
         }
     }
 })
