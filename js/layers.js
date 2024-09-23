@@ -81,7 +81,7 @@ update() {
      if (hasUpgrade("ba",114)) player.ba.water = player.ba.water.add(0.1)
      if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points.mul(player.ba.bdm3))
      if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.mul(player.ba.emb2).div(player.ba.bd2).mul(player.ba.bdm2))
-     if (player.ba.bdm2 == 0) player.ba.bdm2.add(2)
+     if (player.ba.bdm2 == 0) player.ba.bdm2 = player.ba.bdm2.add(2)
      if (hasUpgrade("ba",141)) player.ba.air = player.ba.air.add(0.1)
      if (hasUpgrade("ba",142)) player.ba.dirt = player.ba.dirt.add(player.ba.air.mul(player.ba.air.div(1e3)))
      if (hasUpgrade("ba",143)) player.ba.water = player.ba.water.add(player.ba.air.mul(player.ba.air.div(1e4)))
@@ -1395,7 +1395,7 @@ update() {
             currencyInternalName: "air",
             currencyDisplayName: "Air",
             currencyLayer: "ba",
-            unlocked() {hasUpgrade("ba",95)},
+            unlocked() {return hasUpgrade("ba",95)},
             style: {
                 "background-color"() {
 
@@ -1413,7 +1413,7 @@ update() {
             currencyInternalName: "air",
             currencyDisplayName: "Air",
             currencyLayer: "ba",
-            unlocked() {hasUpgrade("ba",95)},
+            unlocked() {return hasUpgrade("ba",95)},
             style: {
                 "background-color"() {
 
@@ -1431,7 +1431,7 @@ update() {
             currencyInternalName: "air",
             currencyDisplayName: "Air",
             currencyLayer: "ba",
-            unlocked() {hasUpgrade("ba",95)},
+            unlocked() {return hasUpgrade("ba",95)},
             style: {
                 "background-color"() {
 
@@ -1448,7 +1448,7 @@ update() {
             cost: new Decimal(500),
             currencyInternalName: "air",
             currencyDisplayName: "Air",
-            unlocked() {hasUpgrade("ba",95)},
+            unlocked() {return hasUpgrade("ba",95)},
             currencyLayer: "ba",
             style: {
                 "background-color"() {
