@@ -27,7 +27,11 @@ addLayer("ba", {
         emb2: new Decimal(1),
         obdm: new Decimal(0),
         obdm2: new Decimal(0),
-        bdm3: new Decimal(1)
+        bdm3: new Decimal(1),
+        pe: new Decimal(0),
+        baen: new Decimal(0),
+        aso: new Decimal(1e12),
+        shard: new Decimal(0)
       
     }},
     color: "#414241",
@@ -43,8 +47,17 @@ addLayer("ba", {
         if (hasUpgrade(this.layer, 62)) mult = mult.times(upgradeEffect(this.layer, 62))
         if (hasUpgrade(this.layer, 84)) mult = mult.times(upgradeEffect(this.layer, 84))
         if (hasUpgrade("o", 14)) mult = mult.times(upgradeEffect("o", 14))
+        if (player.ba.baen == 1) mult = mult.times(player.ba.en)
+        if (player.ev.green3.gte(1)) mult = mult.times(player.ev.green3).div(1.35)
+        if (player.d.points.gte(1)) mult = mult.times(player.d.points).mul(300)
+        if (hasUpgrade("ev",102)) mult = mult.times(player.ev.boosters).mul(5)
+        if (hasUpgrade("ba", 161) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(500)
+        if (hasUpgrade("ba", 162) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(1e7)
+        if (hasUpgrade("ba", 163) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(1e9)
+        if (hasUpgrade("ba", 164) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(1e11)
         if (hasUpgrade("ba", 102)) mult = mult.times(upgradeEffect("ba", 102))
         if (hasUpgrade("ba", 113)) mult = mult.times(upgradeEffect("ba", 113))
+        if (hasUpgrade("ev", 15)) mult = mult.times(upgradeEffect("ev", 15))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -56,16 +69,6 @@ addLayer("ba", {
     ],
     layerShown(){return true},
    
-    doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
-        if(layers[resettingLayer].row > this.row) return;
-        layerDataReset(this.layer.points);
-        let keptUpgrades = []
-        if (hasUpgrade(this.layer, 115)) keptUpgrades.push(115)
-        let keep = [];
-        if (layers[resettingLayer].row > this.row) layerDataReset(this.layer, keep)
-            player[this.layer].upgrades.push(keptUpgrades)
-    
-},  
 
 passiveGeneration(){return hasUpgrade("ba",51)},
 update() {
@@ -82,11 +85,15 @@ update() {
      if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points.mul(player.ba.bdm3))
      if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.mul(player.ba.emb2).div(player.ba.bd2).mul(player.ba.bdm2))
      if (player.ba.bdm2 == 0) player.ba.bdm2 = player.ba.bdm2.add(2)
+     if (player.ba.bdm == 0) player.ba.bdm = player.ba.bdm.add(2)
      if (hasUpgrade("ba",141)) player.ba.air = player.ba.air.add(0.1)
      if (hasUpgrade("ba",142)) player.ba.dirt = player.ba.dirt.add(player.ba.air.mul(player.ba.air.div(1e3)))
      if (hasUpgrade("ba",143)) player.ba.water = player.ba.water.add(player.ba.air.mul(player.ba.air.div(1e4)))
      if (hasUpgrade("ba",144)) player.ba.air = player.ba.air.add(player.ba.air.div(100))
-     if (player.ba.air.gte(1e12)) player.ba.air = new Decimal(1e12)
+     if (hasUpgrade("ba",145)) player.ba.air = player.ba.air.add(player.ba.air.div(30))
+     if (player.ba.air.gte(player.ba.aso)) player.ba.air = new Decimal(player.ba.aso)
+     if (hasChallenge("ba",12)) player.ba.aso = player.ba.aso.mul(player.ba.en)
+     if (player.ba.aso.gte(1e20)) player.ba.aso = player.ba.aso = new Decimal(1e20)
 },
 
     tabFormat: {
@@ -124,10 +131,14 @@ update() {
                 ["display-text",
                         function() {return 'You have ' + format(player.ba.air) + ' Air'},
                         {"color": "white" , "font-size": "20px"}],
+                ["display-text",
+                    function() {return 'You have ' + format(player.ba.shard) + ' Mars Shards'},
+                        { "color": "gray" , "font-size": "20px"}],
                 "blank",
                 "respec-button",
                 ["row",[["buyable",11],["buyable",12],["buyable",13]]],
                 ["row",[["buyable",21],["buyable",22],["buyable",23]]],
+                ["row",[["buyable",31],["buyable",32],["buyable",33]]],
             ],
             
         },
@@ -153,6 +164,9 @@ update() {
                ["display-text",
                    function() {return 'You have ' + format(player.ba.air) + ' Air'},
                     {"color": "white" , "font-size": "20px"}],
+                 ["display-text",
+                    function() {return 'You have ' + format(player.ba.shard) + ' Mars Shards'},
+                        { "color": "gray" , "font-size": "20px"}],
                 "blank",
                 ["row",[["clickable",11]]],
                 "blank",
@@ -164,7 +178,8 @@ update() {
                 ["row",[["upgrade",91],["upgrade",92],["upgrade",93],["upgrade",94],["upgrade",95]]],
                 ["row",[["upgrade",101],["upgrade",102],["upgrade",103],["upgrade",104],["upgrade",105]]],
                 ["row",[["upgrade",111],["upgrade",112],["upgrade",113],["upgrade",114],["upgrade",115]]],
-                ["row",[["upgrade",141],["upgrade",142],["upgrade",143],["upgrade",144],["upgrade",145]]]
+                ["row",[["upgrade",141],["upgrade",142],["upgrade",143],["upgrade",144],["upgrade",145]]],
+                ["row",[["upgrade",161],["upgrade",162],["upgrade",163],["upgrade",164],["upgrade",165]]]
             ],
             
         },
@@ -180,9 +195,22 @@ update() {
                 ["row",[["clickable",21]]],
                 "blank",
                 ["row",[["clickable",31],["clickable",32],["clickable",33]]],
+                ["row",[["clickable",41],["clickable",42],["clickable",43]]],
                 "blank",
                 "blank",
-                ["row",[["upgrade",131],["upgrade",132],["upgrade",133],["upgrade",134]]]
+                ["row",[["upgrade",131],["upgrade",132],["upgrade",133],["upgrade",134],["upgrade",135]]],
+                ["row",[["upgrade",161],["upgrade",162],["upgrade",163],["upgrade",164],["upgrade",165]]]
+            ]
+        },
+        "Challenges": {
+            unlocked() {return (hasUpgrade("ba", 135))},
+            content: [
+                ["infobox", "challenge"],
+                ["display-text",
+                    function() {return 'You have ' + format(player.ba.en) + ' Enhancement Crystals'},
+                     {"color": "purple" , "font-size": "20px"}],
+                     "blank",
+                "challenges"
             ]
         }
     },
@@ -215,7 +243,40 @@ update() {
             bodyStyle: {'background-color': "#4A2121"}
             
         },
+        challenge: {
+            title: "DOCUMENT ENH000002",
+            titleStyle: {'color': '#000000'},
+            body() { return "Complete these enhanced challenges to get enhanced rewards" },
+            bodyStyle: {'background-color': "#4A2121"}
+            
+        },
         
+    },
+    challenges: {
+        11: {
+            name: "Energy",
+            challengeDescription: "Point gain is divided by 3",
+            canComplete: function() {return player.points.gte(1e117)},
+            goalDescription: "Get 1e117 points",
+            rewardDescription: "Enhancement crystals boost energy gain",
+            rewardEffect() {
+                return player.ba.en.add(1).pow(0.6)
+            },
+            style: {
+                "background": "radial-gradient(purple, pink)" ,
+            },
+            rewardDisplay() {return format(tmp.ba.challenges[11].rewardEffect)+"x"},
+        },
+        12: {
+            name: "Pure Pain",
+            challengeDescription: "Point gain is divided by 2",
+            canComplete: function() {return player.ba.points.gte(1e88)},
+            goalDescription: "Get 1e88 pure power",
+            style: {
+                "background": "radial-gradient(purple, pink)" ,
+            },
+            rewardDescription: "Enhancement crystals extend the air barrier",
+        },
     },
     buyables: {
         showRespec: true,
@@ -228,7 +289,8 @@ update() {
             player.ba.water = new Decimal(1)
             player.ba.dirt = new Decimal(1)
             player.ba.en = new Decimal(1)
-            player.ba.air = new Decimal(1) // Force a reset
+            player.ba.air = new Decimal(1)
+            player.ba.shard = new Decimal(1) // Force a reset
            
         },
         respecText: "RESPEC/SEARCH AGAIN", // Text on Respec button, optional
@@ -339,6 +401,30 @@ update() {
             },
             unlocked() { return  (hasUpgrade("ba",95))}
         },
+        31: {
+            title: "Mars Shards", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e30)
+                let amt = getBuyableAmount("ba",31)
+                let exp = amt.div(2)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Mars shards are glass shards but glass (Mars shards boost pure power)\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Pure power"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ba.shard = player.ba.shard.add(1)
+  
+            },
+            unlocked() {return hasUpgrade("ev",35)}
+        },
         51: {
             title: "ENHANCEMENT CRYSTAL", // Optional, displayed at the top in a larger font
             cost() {
@@ -390,6 +476,7 @@ update() {
                 player.ba.en = player.ba.en.add(1)
                 player.ba.bdm = player.ba.obdm
                 player.ba.bdm2 = player.ba.obdm2
+                player.ba.pe = player.ba.pe = new Decimal(0)
                 player.ba.rocks = player.ba.rocks = new Decimal(1)
                 player.ba.sand = player.ba.sand = new Decimal(1)
                 player.ba.bact = player.ba.bact = new Decimal(1)
@@ -397,6 +484,8 @@ update() {
                 player.ba.dirt = player.ba.dirt = new Decimal(1)
                 player.ba.water = player.ba.water = new Decimal(1)
                 player.ba.bdm3 = player.ba.bdm3 = new Decimal(1)
+                player.ba.baen = player.ba.baen = new Decimal(0)
+                player.ba.aso = player.ba.aso = new Decimal(1e12)
             },
             style: {
                 "background-color"() {
@@ -452,6 +541,57 @@ update() {
                     player.ba.ea = new Decimal(1)
                     player.ba.en = player.ba.en.sub(1)
                     player.ba.bdm3 = player.ba.bdm3 = new Decimal(100)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+         41: {
+            display() {return "ENERGY ENHANCEMENT (energy gain boosted by enhancements)"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.pe = player.ba.pe = new Decimal(1)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        42: {
+            display() {return "PURE POWER ENHANCEMENT (pure power gain boosted by enhancements)"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.baen = player.ba.baen = new Decimal(1)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        43: {
+            display() {return "AIR ENHANCEMENT (Extend the air barrier)"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.aso = player.ba.aso.mul(player.ba.en)
             },
             style: {
                 "background-color"() {
@@ -1384,6 +1524,23 @@ update() {
                 }
             },
         },
+        135: {
+            title: "CHALLENGING",
+            description: "Unlock enhanced challenges",
+            cost: new Decimal(30),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",135)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+        },
         141: {
             title: "Air flow",
             description: "Air is automatically collected (gain 0.1 air/s)",
@@ -1456,6 +1613,114 @@ update() {
                 }
             },
         },
+        145: {
+            title: "Maximum air",
+            description: "Air flows through the air quicker making the air store more energy  (Air boosts air quicker)",
+            cost: new Decimal(1e12),
+            currencyInternalName: "air",
+            currencyDisplayName: "Air",
+            unlocked() {return hasUpgrade("ba",95)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDFFFE"
+                    if (hasUpgrade("ba",145)) color = "#BFBFBF"
+                    return color
+                    
+                }
+            },
+        },
+        161: {
+            title: "SHARD",
+            description: "Mars shards boost pure power",
+            cost: new Decimal(5),
+            currencyInternalName: "shard",
+            currencyDisplayName: "Mars Shard",
+            unlocked() {return hasUpgrade("ev",35)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDEEEE"
+                    if (hasUpgrade("ba",161)) color = "gray"
+                    return color
+                    
+                }
+            },
+        },
+        162: {
+            title: "SHARP",
+            description: "Mars shards boost pure power even more",
+            cost: new Decimal(8),
+            currencyInternalName: "shard",
+            currencyDisplayName: "Mars Shard",
+            unlocked() {return hasUpgrade("ev",35)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDEEEE"
+                    if (hasUpgrade("ba",162)) color = "gray"
+                    return color
+                    
+                }
+            },
+        },
+        163: {
+            title: "SHARPER",
+            description: "Mars shards boost pure power MORE",
+            cost: new Decimal(13),
+            currencyInternalName: "shard",
+            currencyDisplayName: "Mars Shard",
+            unlocked() {return hasUpgrade("ev",35)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDEEEE"
+                    if (hasUpgrade("ba",163)) color = "gray"
+                    return color
+                    
+                }
+            },
+        },
+        164: {
+            title: "SHARPEST",
+            description: "Mars shards boost pure power M(ORE)",
+            cost: new Decimal(15),
+            currencyInternalName: "shard",
+            currencyDisplayName: "Mars Shard",
+            unlocked() {return hasUpgrade("ev",35)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDEEEE"
+                    if (hasUpgrade("ba",164)) color = "gray"
+                    return color
+                    
+                }
+            },
+        },
+        165: {
+            title: "Mining",
+            description: "Unlock the Mine layer",
+            cost: new Decimal(16),
+            currencyInternalName: "shard",
+            currencyDisplayName: "Mars Shard",
+            unlocked() {return hasUpgrade("ev",35)},
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#FDEEEE"
+                    if (hasUpgrade("ba",165)) color = "gray"
+                    return color
+                    
+                }
+            },
+        },
         61: {
             title: "ROCK POTENTIAL ULTRA",
             description: "The rocks are so strong. Who knew that they would make enough energy to keep the lights on to a city for a week! (Mars rocks boost Pure power)",
@@ -1486,6 +1751,51 @@ update() {
     }
 
 }),
+addLayer("d", {
+    name: "Drills", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "MINE", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0)
+    }},
+    color: "#9E8E2A",
+    requires: new Decimal(1e120), // Can be a function that takes requirement increases into account
+    resource: "Drills", // Name of prestige currency
+    baseResource: "Pure Power", // Name of resource prestige is based on
+    baseAmount() {return player.ba.points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 3, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "d", description: "D: Reset for Drills", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    layerShown() {
+        if (hasUpgrade("ba",165)) return true
+    },
+    branches: ['ba','o'],
+    resetsNothing() {return true},
+    tabFormat: {
+        "Drills": {
+            content: [
+                "main-display",
+                "prestige-button",
+                ["display-text",
+                        function() {return 'Drills boost pure power by ' + format(player.d.points.mul(300)) + ' x'},
+                        {"color": "gold" , "font-size": "20px"}],
+            ],
+            buttonStyle: {"border-color": "gold"},
+            
+        }
+    }
+})
 addLayer("o", {
     name: "oxygen", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "OXY", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -1634,6 +1944,508 @@ clickables: {
         }
         
     },
+
+}),
+addLayer("ev", {
+    name: "enviorment", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "🌲", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+        green2: new Decimal(0),
+        green3: new Decimal(0),
+        green4: new Decimal(0),
+        boosters: new Decimal(0),
+        b1b: new Decimal(1),
+        b2b: new Decimal(1),
+        gboost: new Decimal(0)
+    }},
+    color: "#28A424",
+    resource: "Greenium", // Name of prestige currency    exponent: 0.35, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        if (hasUpgrade("ev",21)) mult = mult.times(upgradeEffect("ev",21))
+        if (hasUpgrade("ev",32)) mult = mult.times(upgradeEffect("ev",32))
+        if (hasUpgrade("ev",23)) mult = mult.times(5)
+        if (hasUpgrade("ev",34)) mult = mult.times(10)
+        if (player.ev.green4.gte(1)) mult = mult.times(player.ev.green4).div(2)
+        if (player.ev.boosters.gte(1))mult = mult.times(player.ev.boosters)
+        if (player.ev.gboost.gte(1))mult = mult.times(player.ev.gboost.mul(3))
+        return mult
+    },
+    requires: new Decimal(1e120),
+    baseResource: "Pure Power", // Name of resource prestige is based on
+    baseAmount() {return player.ba.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.025, // Prestige currency exponent
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: "side", // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return (hasUpgrade("ba",105))},
+    onPrestige() {
+        if(!hasMilestone("ev",2)) player.ba.points = player.ba.points = new Decimal(0)
+        if(!hasMilestone("ev",2)) player.points = player.points = new Decimal(0)
+    },
+    hotkeys: [
+        {key: "g", description: "G: Reset for Greenium", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    update() {
+        if (player.ev.green4 == 0) player.ev.green4 = player.ev.green4.add(2)
+        setBuyableAmount('ev', 41, new Decimal(player.ev.boosters))
+        setBuyableAmount('ev', 51, new Decimal(player.ev.gboost))
+        if (player.ev.points.gte > 1e30) player.ev.points = player.ev.points.div(100)
+        if (hasMilestone('ev',3)) {    
+               if (layers.ev.buyables[41].canAfford()) {
+                return layers.ev.buyables[41].buy()
+               }    
+        }
+    },
+    autoPrestige() { return (hasMilestone("ev", 0)) },
+    resetsNothing() { return (hasMilestone("ev",2))},
+    tabFormat: {
+        "Main": {
+            content: [
+                "main-display",
+                "prestige-button",
+            ],
+            buttonStyle: {"border-color": "lime"},
+        },
+        "Greenium": {
+            
+            content: [
+                ["microtabs","green"]
+            ],
+            buttonStyle: {"border-color": "green"},
+        
+        }
+    },
+    microtabs: {
+        "green": {
+            "Upgrades": {
+                buttonStyle: {"border-color": "green"},
+                content: [
+                     ["display-text",
+                        function() {return 'You have ' + format(player.ev.points) + ' Greenium'},
+                        {"color": "green" , "font-size": "20px"}],
+                        "blank",
+                        ["display-text",
+                            function() {return 'Greenium decay starts at 1e30 greenium'},
+                            {"color": "green" , "font-size": "15px"}],
+                            "blank",
+                    ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14],["upgrade",15]]],
+                    ["row",[["upgrade",21],["upgrade",22],["upgrade",23],["upgrade",24],["upgrade",25]]],
+                    ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35]]],
+                    "blank",
+                   
+                ],
+               
+            },
+            "Milestones": {
+                buttonStyle: {"border-color": "green"},
+                content: [
+                    ["display-text",
+                        function() {return 'You have ' + format(player.ev.points) + ' Greenium'},
+                        {"color": "green" , "font-size": "20px"}],
+                        "blank",
+                   ["column",[["milestone",0],["milestone",1],["milestone",2],["milestone",3]]]
+              
+                ],
+                unlocked() {return hasUpgrade("ev",14)}
+            },
+            "Isotopes": {
+                buttonStyle: {
+                    "border-color": "green"   
+                },
+                content: [
+                    ["display-text",
+                        function() {return 'You have ' + format(player.ev.green2) + ' Greenonium'},
+                        {"color": "#599E45" , "font-size": "20px"}],
+                    ["display-text",
+                        function() {return 'You have ' + format(player.ev.green3) + ' Greeninite'},
+                        {"color": "#91FF99" , "font-size": "20px"}],
+                     ["display-text",
+                        function() {return 'You have ' + format(player.ev.green4) + ' Greenilium'},
+                        {"color": "#00B972" , "font-size": "20px"}],
+                        "blank",
+                        ["row",[["buyable",11],["buyable",12],["buyable",13]]]
+              
+                ],
+                unlocked() {return hasMilestone("ev",1)}
+            },
+            "Boosters": {
+                buttonStyle: {
+                    "border-color": "cyan#54D4B1"   
+                },
+                content: [
+                    ["display-text",
+                        function() {return 'You have ' + format(player.ev.boosters) + ' Boosters' + '     Boosters boost greenium gain by: ' + format(player.ev.boosters) + 'x'},
+                        {"color": "#54D4B1" , "font-size": "20px"}],
+                        "blank",
+                        ["row",[["buyable",41]]],
+                        "blank",
+                        ["row",[["upgrade",101],["upgrade",102],["upgrade",103],["upgrade",104],["upgrade",105]]],
+                        "blank",
+                        "blank",
+                        ["display-text",
+                        function() {return 'You have ' + format(player.ev.gboost) + ' Green boosters' + '     Green boosters boost greenium gain by: ' + format(player.ev.gboost.mul(3)) + 'x'},
+                        {"color": "green" , "font-size": "20px"}],
+                        "blank",
+                        ["row",[["buyable",51]]],
+                        
+              
+                ],
+                unlocked() {return hasUpgrade("ev",25)}
+            }
+        }
+    },
+    buyables: {
+        11: {
+            title: "ISOTOPE: GREENONIUM", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(5e4)
+                let amt = getBuyableAmount("ev", 11)
+                let exp = amt.div(10)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Greenonium boosts point gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Greenium"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            style: {
+                "background": "radial-gradient(#194D33, #5BAD42)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ev.green2 = player.ev.green2.add(1)
+               
+            }
+        },
+        12: {
+            title: "ISOTOPE: GREENINITE", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e5)
+                let amt = getBuyableAmount("ev", 12)
+                let exp = amt.div(9)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Greeninite boosts pure power gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Greenium"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            style: {
+                "background": "radial-gradient(#194D33, #4DFF5B)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ev.green3 = player.ev.green3.add(1)
+               
+            },
+            unlocked() {return hasUpgrade("ev",22)}
+        },
+        13: {
+            title: "ISOTOPE: GREENILIUM", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(5e5)
+                let amt = getBuyableAmount("ev", 13)
+                let exp = amt.div(5)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Greenilium boosts greenium gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Greenium"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            style: {
+                "background": "radial-gradient(#00B972, #7DFFCD)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ev.green4 = player.ev.green4.add(1)
+               
+            },
+            unlocked() {return hasUpgrade("ev",24)}
+        },
+        41: {
+            canAfford() {
+                return player.ev.points.gte(tmp[this.layer].buyables[this.id].cost)},
+            title: "Booster reset", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(2e6)
+                let amt = getBuyableAmount("ev",41)
+                let exp = amt.div(6)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Reset greenium for a booster\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Greenium"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ev.boosters = player.ev.boosters.add(1)
+                player.ev.points = player.ev.points = new Decimal(0)
+               
+            },
+            style: {
+                "background": "linear-gradient(to right, #5AFFEB, #30CDE0)" ,
+                width: "235px",
+                height: "130px"
+            },
+            unlocked() {return hasUpgrade("ev",25)}
+        },
+        51: {
+            title: "Green booster reset", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e30)
+                let amt = getBuyableAmount("ev",51)
+                let exp = amt.div(3)
+                return init.pow(exp)
+            },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Reset greenium for a green booster (WARNING: RESETS BOOSTERS)\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Greenium"
+                
+            },
+        
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.ev.gboost = player.ev.gboost.add(1)
+                player.ev.points = player.ev.points = new Decimal(0)
+                player.points = player.points = new Decimal(0)
+                player.ba.points = player.ba.points = new Decimal(0)
+                player.ev.boosters = player.ev.boosters = new Decimal(1)
+               
+            },
+            style: {
+                "background": "linear-gradient(to right, green, lime)" ,
+                width: "235px",
+                height: "130px"
+            },
+            unlocked() {return hasUpgrade("ev",33)}
+        }
+    },
+    upgrades: {
+        11: {
+            title: "Exchange",
+            description: "You lose oxygen quicker but you can start getting greenium benifits",
+            cost: new Decimal(10),
+            onPurchase() {
+                player.o.ol = new Decimal(0.35)
+            }
+        },
+        12: {
+            title: "Exchange 2.0",
+            description: "You lose more oxygen :)",
+            cost: new Decimal(10),
+            onPurchase() {
+                player.o.ol = new Decimal(1.5)
+            },
+            unlocked() {return hasUpgrade("ev",11)}
+        },
+        13: {
+            title: "Green energy",
+            description: "Greenium boosts energy",
+            cost: new Decimal(25),
+            effect() {
+                return player.ev.points.add(1).pow(0.5)
+            },
+            unlocked() {return hasUpgrade("ev",12)},
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+          
+        },
+        14: {
+            title: "Green progress",
+            description: "Unlock greenium milestones",
+            cost: new Decimal(30),  
+            unlocked() {return hasUpgrade("ev",12)},    
+        },
+        15: {
+            title: "Pure green energy",
+            description: "Greenim boosts pure power",
+            cost: new Decimal(150),  
+            unlocked() {return hasUpgrade("ev",12)}, 
+            effect() {
+                return player.ev.points.add(1).pow(0.4)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect   
+        },
+        21: {
+            title: "Greener greenium",
+            description: "Greenim boosts greenium",
+            cost: new Decimal(300),  
+            unlocked() {return hasUpgrade("ev",15)}, 
+            effect() {
+                return player.ev.points.add(1).pow(0.3)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect   
+        },
+        22: {
+            title: "Greenyness",
+            description: "Unlock a new isotope",
+            cost: new Decimal(1e5),  
+            unlocked() {return hasUpgrade("ev",15)}, 
+        },
+        23: {
+            title: "Green boost",
+            description: "x5 greenium gain",
+            cost: new Decimal(3.5e5),  
+            unlocked() {return hasUpgrade("ev",15)}, 
+        },
+        24: {
+            title: "GREEN-200",
+            description: "Unlock a new isotope",
+            cost: new Decimal(1e6),  
+            unlocked() {return hasUpgrade("ev",15)}, 
+        },
+        25: {
+            title: "Green Boosters",
+            description: "Unlock green boosters",
+            cost: new Decimal(2e7),  
+            unlocked() {return hasUpgrade("ev",15)}, 
+        },
+        31: {
+            title: "Greensanity",
+            description: "Greenium boosts points",
+            cost: new Decimal(1e8),  
+            unlocked() {return hasUpgrade("ev",103)},
+            effect() {
+                return player.ev.points.add(1).pow(0.5)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect   
+        },
+        32: {
+            title: "Green'd",
+            description: "Greenium boosts greenium again",
+            cost: new Decimal(6e8),  
+            unlocked() {return hasUpgrade("ev",103)},
+            effect() {
+                return player.ev.points.add(1).pow(0.35)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect   
+        },
+        33: {
+            title: "Greeny Greens",
+            description: "Unlock Green boosters",
+            cost: new Decimal(1e28),  
+            unlocked() {return hasUpgrade("ev",103)},
+        },
+        34: {
+            title: "Green 1.5",
+            description: "x10 greenium",
+            cost: new Decimal(1e40),  
+            unlocked() {return hasUpgrade("ev",103)},
+        },
+        35: {
+            title: "Mars Shards",
+            description: "Unlock mars shards (new material)",
+            cost: new Decimal(3e40),  
+            unlocked() {return hasUpgrade("ev",103)},
+        },
+        101: {
+            title: "BOOST I",
+            description: "Boosters boost energy gain",
+            cost: new Decimal(4),  
+            currencyInternalName: "boosters",
+            currencyDisplayName: "Boosters",
+            currencyLayer: "ev",
+            unlocked() {return hasUpgrade("ev",25)}, 
+            style: {
+                "background-color"() {
+
+                    let color = "#03FFEB"
+                    if (hasUpgrade("ev",101)) color = "#40B4DE"
+                    return color
+                    
+                }
+            },
+        },
+        102: {
+            title: "BOOST II",
+            description: "Boosters boost pure power gain",
+            cost: new Decimal(6),  
+            currencyInternalName: "boosters",
+            currencyDisplayName: "Boosters",
+            currencyLayer: "ev",
+            unlocked() {return hasUpgrade("ev",25)}, 
+            style: {
+                "background-color"() {
+
+                    let color = "#03FFEB"
+                    if (hasUpgrade("ev",102)) color = "#40B4DE"
+                    return color
+                    
+                }
+            },
+        },
+        103: {
+            title: "BOOST III",
+            description: "Unlock more greenium upgrades",
+            cost: new Decimal(8),  
+            currencyInternalName: "boosters",
+            currencyDisplayName: "Boosters",
+            currencyLayer: "ev",
+            unlocked() {return hasUpgrade("ev",25)}, 
+            style: {
+                "background-color"() {
+
+                    let color = "#03FFEB"
+                    if (hasUpgrade("ev",103)) color = "#40B4DE"
+                    return color
+                    
+                }
+            },
+        },
+        
+    },
+    clickables: {
+    },
+    milestones: {
+        0: {
+            requirementDescription: "50 greenium",
+            effectDescription: "Auto prestige greenium",
+            done() { return player.ev.points.gte(50) }
+        },
+        1: {
+            requirementDescription: "10000 greenium",
+            effectDescription: "Unlock Green Isotopes",
+            done() { return player.ev.points.gte(10000) }
+        },
+        2: {
+            requirementDescription: "5e4 greenium",
+            effectDescription: "Greenium resets nothing",
+            done() { return player.ev.points.gte(5e4) }
+        },
+        3: {
+            requirementDescription: "1e37 greenium",
+            effectDescription: "Automatically buy boosters",
+            done() { return player.ev.points.gte(1e37) }
+        }
+    }
+   
+   
 
 }),
 addLayer("a", {
@@ -1792,6 +2604,61 @@ addLayer("a", {
             name: "Fresh air",
             tooltip: "Get 500 oxygen",
             done(){return player.o.points.gte(500)} 
+        },
+        44: {
+            name: "NO MORE AIR",
+            tooltip: "Get 1e12 air",
+            done(){return player.ba.air.gte(1e12)} 
+        },
+        45: {
+            name: "Challenging",
+            tooltip: "Complete the challenge: energy",
+            done(){return hasChallenge("ba",11)} 
+        },
+        46: {
+            name: "Challenger",
+            tooltip: "Complete the challenge: pure pain",
+            done(){return hasChallenge("ba",12)} 
+        },
+        47: {
+            name: "Greener is better",
+            tooltip: "Get 5 greenium",
+            done(){return player.ev.points.gte(5)} 
+        },
+        51: {
+            name: "Greenioactive",
+            tooltip: "Get 10 greenonium",
+            done(){return player.ev.green2.gte(10)} 
+        },
+        52: {
+            name: "Green ores",
+            tooltip: "Get 10 greeninite",
+            done(){return player.ev.green3.gte(10)} 
+        },
+        53: {
+            name: "Green elements",
+            tooltip: "Get 5 greenilium",
+            done(){return player.ev.green4.gte(5)} 
+        },
+        54: {
+            name: "Boosted",
+            tooltip: "Get 5 boosters",
+            done(){return player.ev.boosters.gte(5)} 
+        },
+        55: {
+            name: "Into the greenyverse",
+            tooltip: "Get 1 green booster",
+            done(){return player.ev.gboost.gte(1)} 
+        },
+        56: {
+            name: "Across the greenyverse",
+            tooltip: "Get 4 green boosters",
+            done(){return player.ev.gboost.gte(4)} 
+        },
+        57: {
+            name: "To the core",
+            tooltip: "Get 1 Drill",
+            done(){return player.d.points.gte(1)} 
         }
     }
 })
