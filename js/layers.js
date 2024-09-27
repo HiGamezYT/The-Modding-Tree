@@ -199,7 +199,7 @@ update() {
                 "blank",
                 "blank",
                 ["row",[["upgrade",131],["upgrade",132],["upgrade",133],["upgrade",134],["upgrade",135]]],
-                ["row",[["upgrade",161],["upgrade",162],["upgrade",163],["upgrade",164],["upgrade",165]]]
+               
             ]
         },
         "Challenges": {
