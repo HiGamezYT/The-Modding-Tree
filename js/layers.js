@@ -31,7 +31,9 @@ addLayer("ba", {
         pe: new Decimal(0),
         baen: new Decimal(0),
         aso: new Decimal(1e12),
-        shard: new Decimal(0)
+        shard: new Decimal(0),
+        bactmul: new Decimal(1),
+        oxbo: new Decimal(1)
       
     }},
     color: "#414241",
@@ -46,10 +48,12 @@ addLayer("ba", {
         if (hasUpgrade(this.layer, 61)) mult = mult.times(upgradeEffect(this.layer, 61))
         if (hasUpgrade(this.layer, 62)) mult = mult.times(upgradeEffect(this.layer, 62))
         if (hasUpgrade(this.layer, 84)) mult = mult.times(upgradeEffect(this.layer, 84))
+        if (hasUpgrade("d", 96)) mult = mult.times(upgradeEffect("d", 96))
         if (hasUpgrade("o", 14)) mult = mult.times(upgradeEffect("o", 14))
         if (player.ba.baen == 1) mult = mult.times(player.ba.en)
-        if (player.ev.green3.gte(1)) mult = mult.times(player.ev.green3).div(1.35)
-        if (player.d.points.gte(1)) mult = mult.times(player.d.points).mul(300)
+        if (player.ev.green3.gte(1)) mult = mult.times(player.ev.green3.mul(2.5))
+        if (player.d.points.gte(1)) mult = mult.times(player.d.points).mul(300).mul(player.d.ub)
+        if (player.d.wd.gte(1)) mult = mult.times(player.d.wd)
         if (hasUpgrade("ev",102)) mult = mult.times(player.ev.boosters).mul(5)
         if (hasUpgrade("ba", 161) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(500)
         if (hasUpgrade("ba", 162) && player.ba.shard.gte(1)) mult = mult.times(player.ba.shard).mul(1e7)
@@ -58,6 +62,11 @@ addLayer("ba", {
         if (hasUpgrade("ba", 102)) mult = mult.times(upgradeEffect("ba", 102))
         if (hasUpgrade("ba", 113)) mult = mult.times(upgradeEffect("ba", 113))
         if (hasUpgrade("ev", 15)) mult = mult.times(upgradeEffect("ev", 15))
+        if (hasUpgrade("d", 13)) mult = mult.times(4).pow(1.04)
+        if (hasUpgrade("d", 63)) mult = mult.times(12).pow(1.03)
+        if (hasUpgrade("d", 64)) mult = mult.times(14).pow(1.035)
+        if (player.ba.oxbo.gte(2)) mult = mult.times(player.ba.oxbo).mul(25)
+        
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -82,7 +91,7 @@ update() {
      if (hasUpgrade("ba",131)) player.ba.emb = player.ba.en
      if (hasUpgrade("ba",131)) player.ba.emb2 = player.ba.en.div(1.5)
      if (hasUpgrade("ba",114)) player.ba.water = player.ba.water.add(0.1)
-     if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points.mul(player.ba.bdm3))
+     if (hasUpgrade("ba",92)) player.ba.bact = player.ba.bact.add(player.o.points.mul(player.ba.bdm3).mul(player.ba.bactmul))
      if (hasUpgrade("ba",45) && player.ba.as.gte(1)) player.ba.sand = player.ba.sand.add(player.ba.bact.mul(player.ba.emb2).div(player.ba.bd2).mul(player.ba.bdm2))
      if (player.ba.bdm2 == 0) player.ba.bdm2 = player.ba.bdm2.add(2)
      if (player.ba.bdm == 0) player.ba.bdm = player.ba.bdm.add(2)
@@ -94,6 +103,7 @@ update() {
      if (player.ba.air.gte(player.ba.aso)) player.ba.air = new Decimal(player.ba.aso)
      if (hasChallenge("ba",12)) player.ba.aso = player.ba.aso.mul(player.ba.en)
      if (player.ba.aso.gte(1e20)) player.ba.aso = player.ba.aso = new Decimal(1e20)
+     if (player.ba.aso == 0) player.ba.aso = player.ba.aso = new Decimal(1e12)
 },
 
     tabFormat: {
@@ -196,9 +206,11 @@ update() {
                 "blank",
                 ["row",[["clickable",31],["clickable",32],["clickable",33]]],
                 ["row",[["clickable",41],["clickable",42],["clickable",43]]],
+                ["row",[["clickable",51],["clickable",52],["clickable",53]]],
                 "blank",
                 "blank",
                 ["row",[["upgrade",131],["upgrade",132],["upgrade",133],["upgrade",134],["upgrade",135]]],
+                ["row",[["upgrade",201],["upgrade",202],["upgrade",203],["upgrade",204],["upgrade",205]]],
                
             ]
         },
@@ -486,6 +498,7 @@ update() {
                 player.ba.bdm3 = player.ba.bdm3 = new Decimal(1)
                 player.ba.baen = player.ba.baen = new Decimal(0)
                 player.ba.aso = player.ba.aso = new Decimal(1e12)
+                player.ba.oxbo = player.ba.oxbo = new Decimal(1)
             },
             style: {
                 "background-color"() {
@@ -504,7 +517,7 @@ update() {
                     player.ba.obdm = new Decimal(player.ba.bdm)
                     player.ba.ea = new Decimal(1)
                     player.ba.en = player.ba.en.sub(1)
-                    player.ba.bdm = player.ba.bdm = new Decimal(1e9)
+                    player.ba.bdm = player.ba.bdm = new Decimal(1e12)
                     },
             style: {
                 "background-color"() {
@@ -523,7 +536,7 @@ update() {
                     player.ba.obdm2 = new Decimal(player.ba.bdm2)
                     player.ba.ea = new Decimal(1)
                     player.ba.en = player.ba.en.sub(1)
-                    player.ba.bdm2 = player.ba.bdm2 = new Decimal(1e9)
+                    player.ba.bdm2 = player.ba.bdm2 = new Decimal(1e11)
             },
             style: {
                 "background-color"() {
@@ -540,7 +553,7 @@ update() {
             onClick() {
                     player.ba.ea = new Decimal(1)
                     player.ba.en = player.ba.en.sub(1)
-                    player.ba.bdm3 = player.ba.bdm3 = new Decimal(100)
+                    player.ba.bdm3 = player.ba.bdm3 = new Decimal(500)
             },
             style: {
                 "background-color"() {
@@ -551,7 +564,7 @@ update() {
             },
             
         },
-         41: {
+        41: {
             display() {return "ENERGY ENHANCEMENT (energy gain boosted by enhancements)"},
             canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
             onClick() {
@@ -592,6 +605,23 @@ update() {
                     player.ba.ea = new Decimal(1)
                     player.ba.en = player.ba.en.sub(1)
                     player.ba.aso = player.ba.aso.mul(player.ba.en)
+            },
+            style: {
+                "background-color"() {
+                    let color = "#C800FD"
+                    return color
+                    
+                }
+            },
+            
+        },
+        51: {
+            display() {return "Oxygen Enhancement (Oxygen boosts pure power x 25)"},
+            canClick() {if (player.ba.ea == 0 && player.ba.en.gte(1)) return true},
+            onClick() {
+                    player.ba.ea = new Decimal(1)
+                    player.ba.en = player.ba.en.sub(1)
+                    player.ba.oxbo = player.o.points
             },
             style: {
                 "background-color"() {
@@ -1541,6 +1571,112 @@ update() {
                 }
             },
         },
+        201: {
+            title: "BOOST III",
+            description: "Boost mars rocks even more",
+            cost: new Decimal(30),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",201)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+             onPurchase() {
+                player.ba.bdm = player.ba.bdm.add(1e7)
+            },
+            unlocked() {return hasUpgrade("ba",135)}
+        },
+        202: {
+            title: "BOOST IV",
+            description: "Boost mars sand even more",
+            cost: new Decimal(30),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",202)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+             onPurchase() {
+                player.ba.bdm2 = player.ba.bdm2.add(1e4)
+            },
+            unlocked() {return hasUpgrade("ba",135)}
+        },
+        203: {
+            title: "BOOST V",
+            description: "Boost mars rocks EVEN MORE",
+            cost: new Decimal(32),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",203)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+             onPurchase() {
+                player.ba.bdm = player.ba.bdm.add(1e8)
+            },
+            unlocked() {return hasUpgrade("ba",135)}
+        },
+        204: {
+            title: "BOOST VI",
+            description: "Boost mars rocks SO MUCH MORE",
+            cost: new Decimal(32),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",204)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+             onPurchase() {
+                player.ba.bdm = player.ba.bdm.add(1e10)
+            },
+            unlocked() {return hasUpgrade("ba",135)}
+        },
+        205: {
+            title: "ULTRA BOOST",
+            description: "Boost mars rocks and mars sand SO MUCH MORE",
+            cost: new Decimal(40),
+            currencyInternalName: "en",
+            currencyDisplayName: "Enhancement Crystals",
+            currencyLayer: "ba",
+            style: {
+                "background-color"() {
+
+                    let color = "#E493FF"
+                    if (hasUpgrade("ba",205)) color = "#C411FF"
+                    return color
+                    
+                }
+            },
+             onPurchase() {
+                player.ba.bdm = player.ba.bdm.add(1e12)
+                player.ba.bdm2 = player.ba.bdm2.add(1e6)
+            },
+            unlocked() {return hasUpgrade("ba",135)}
+        },
         141: {
             title: "Air flow",
             description: "Air is automatically collected (gain 0.1 air/s)",
@@ -1757,7 +1893,29 @@ addLayer("d", {
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
-		points: new Decimal(0)
+		points: new Decimal(0),
+        rd: new Decimal(0),
+        db: new Decimal(0),
+        dbm: new Decimal(1),
+        wd: new Decimal(0),
+        sd: new Decimal(0),
+        ub: new Decimal(1),
+        ird: new Decimal(0),
+        cand: new Decimal(1),
+        md: new Decimal(0),
+        prefix: new Decimal(0),
+        begin: new Decimal(0),
+        mdgain: new Decimal(0.25),
+        mm: new Decimal(1),
+        mbest: new Decimal(0),
+        mlt: new Decimal(1),
+        newton: new Decimal(0),
+        jo: new Decimal(0),
+        jou1: new Decimal(1),
+        jm: new Decimal(1),
+        newt1: new Decimal(1),
+        gd: new Decimal(0),
+        gdb: new Decimal(1)
     }},
     color: "#9E8E2A",
     requires: new Decimal(1e120), // Can be a function that takes requirement increases into account
@@ -1768,6 +1926,7 @@ addLayer("d", {
     exponent: 3, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+            if (hasUpgrade("d",66)) mult = mult.times(player.d.newton)
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -1780,22 +1939,914 @@ addLayer("d", {
     layerShown() {
         if (hasUpgrade("ba",165)) return true
     },
+    update(diff) {
+        player.d.db = player.d.db.add(player.d.points.mul(player.d.dbm.mul(player.d.newt1))*diff)
+        if (hasUpgrade("d",23)) player.d.dbm = player.d.dbm.add(upgradeEffect("d",23))
+        if (hasUpgrade("d",62)) player.d.dbm = player.d.dbm.add(upgradeEffect("d",62))
+        if (hasUpgrade("o",33)) player.d.dbm = player.d.dbm.add(upgradeEffect("o",33))
+        if (hasUpgrade("d",54)) player.d.mlt = player.d.points
+        if (player.d.gd.gte(1)) player.d.dbm = player.d.dbm.add(player.d.gdb.mul(player.d.gdb.mul(player.d.gdb)))
+        if (player.d.gd.gte(1)) player.d.gdb = new Decimal(player.d.gd)
+        if (player.d.md.gte(5000)) player.d.mdgain = new Decimal(0.0000001)
+        if (hasUpgrade("d",72)) player.d.jou1 = player.d.newton.mul(player.d.jm)
+        if (hasUpgrade("d",75)) player.d.newt1 = player.d.newton
+        if (player.d.newton.gte(1)) player.d.jo = player.d.jo.add(player.d.newton.mul(player.d.jou1.mul(player.d.jm))*diff)
+        if (player.d.md.gte(1000) && !player.d.md.gte(5000)) player.d.mdgain = new Decimal(0.0001)
+        if (player.d.md.gte(500) && !player.d.md.gte(1000)) player.d.mdgain = new Decimal(0.001)
+        if (player.d.md.gte(100) && !player.d.md.gte(500)) player.d.mdgain = new Decimal(0.01)
+        if (player.d.md.gte(30) && !player.d.md.gte(100)) player.d.mdgain = new Decimal(0.1)
+        if (player.d.md.gte(0) && !player.d.md.gte(30)) player.d.mdgain = new Decimal(1)
+        player.d.mbest = player.d.mbest.max(player.d.md)
+        if (player.d.db < -1) player.d.db = new Decimal(1)
+        setBuyableAmount('d', 51, new Decimal(player.d.newton))
+        if (player.d.begin == 1) player.d.md = player.d.md.add(player.d.mdgain.mul(player.d.mm).mul(player.d.mlt)*diff)
+       // setBuyableAmount('d', 11, new Decimal(0))
+           
+    },
     branches: ['ba','o'],
     resetsNothing() {return true},
     tabFormat: {
         "Drills": {
             content: [
-                "main-display",
-                "prestige-button",
-                ["display-text",
-                        function() {return 'Drills boost pure power by ' + format(player.d.points.mul(300)) + ' x'},
-                        {"color": "gold" , "font-size": "20px"}],
+                ["microtabs","drill"],
             ],
             buttonStyle: {"border-color": "gold"},
             
+        },
+        "Energy": {
+            content: [
+                ["microtabs","energy"],
+            ],
+            buttonStyle: {"border-color": "#FFAA00"},
+            unlocked() {return hasUpgrade("d",65)}
+        },
+    },
+    microtabs: {
+        energy: {
+            "Joules": {
+                content: [
+                    ["display-text",
+                        function() {return 'You have ' + format(player.d.newton) + ' Newtons'},
+                        {"color": "cyan" , "font-size": "20px"}],
+                    ["display-text",
+                            function() {return 'You are gaining ' + format(player.d.newton.mul(player.d.jou1).mul(player.d.jm)) + ' Joules/s'},
+                            {"color": "gold" , "font-size": "20px"}],
+                            ["display-text",
+                                function() {return 'You have ' + format(player.d.jo) + ' Joules'},
+                                {"color": "gold" , "font-size": "20px"}],
+                    ["row",[["buyable",51]]],
+                    ["row",[["upgrade",71],["upgrade",72],["upgrade",73],["upgrade",74],["upgrade",75],["upgrade",76]]],
+                    ["row",[["upgrade",91],["upgrade",92],["upgrade",93],["upgrade",94],["upgrade",95],["upgrade",96]]]
+                ]
+            }
+        },
+        drill: {
+        "Main": {
+            content: [
+                "main-display",
+                "prestige-button",
+                ["display-text",
+                        function() {return 'Drills boost pure power by ' + format(player.d.points.mul(300).mul(player.d.ub)) + ' x'},
+                        {"color": "gold" , "font-size": "20px"}],
+                    ["display-text",
+                        function() {return 'Drills gives ' + format(player.d.points.mul(player.d.dbm)) + ' Drill bits/s'},
+                        {"color": "gold" , "font-size": "20px"}],
+                     ["display-text",
+                        function() {return 'You have ' + format(player.d.db) + ' Drill bits'},
+                        {"color": "gold" , "font-size": "16px"}],
+                ["display-text",
+                        function() {return 'You have ' + format(player.d.rd) + ' Rusty Drills'},
+                        {"color": "brown" , "font-size": "16px"}],
+                        ["display-text",
+                            function() {return 'You have ' + format(player.d.wd) + ' Wooden Drills'},
+                            {"color": "brown" , "font-size": "16px"}],
+             ["display-text",
+                            function() {return 'You have ' + format(player.d.sd) + ' Stone Drills'},
+                            {"color": "gray" , "font-size": "16px"}],
+                            ["display-text",
+                                function() {return 'You have ' + format(player.d.ird) + ' Iron Drills'},
+                                {"color": "white" , "font-size": "16px"}],
+               ["display-text",
+          function() {return 'You have ' + format(player.d.gd) + ' Gold Drills'},
+                                    {"color": "gold" , "font-size": "16px"}],
+                ["row",[["buyable",11],["buyable",12],["buyable",13]]],
+                ["row",[["buyable",21],["buyable",22]]]
+            ]
+        },
+        "Upgrades": {
+            content: [
+                ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14],["upgrade",15],["upgrade",16]]],
+                ["row",[["upgrade",21],["upgrade",22],["upgrade",23],["upgrade",24],["upgrade",25],["upgrade",26]]],
+                ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35],["upgrade",36]]],
+                ["row",[["upgrade",61],["upgrade",62],["upgrade",63],["upgrade",64],["upgrade",65],["upgrade",66]]],
+                ["row",[["upgrade",81],["upgrade",82],["upgrade",83],["upgrade",84],["upgrade",85],["upgrade",86]]]
+            ]
+        },
+        "Drilling": {
+            content: [
+             ["display-text",
+                            function() {return 'You have drilled ' + format(player.d.md) + 'm' + ' Dug'},
+                            {"color": "gray" , "font-size": "20px"}],
+                            ["display-text",
+                            function() {return 'The deepest you dug is ' + format(player.d.mbest) + ' meters'},
+                            {"color": "gray" , "font-size": "16px"},],
+                            ["display-text",
+                            function() {return 'The deeper you drill the harder it gets.'},
+                            {"color": "gray" , "font-size": "16px"},
+                           
+                            ],
+                ["row",[["clickable",11],["clickable",12]]],
+                "blank",
+                ["row",[["upgrade",41],["upgrade",42],["upgrade",43],["upgrade",44],["upgrade",45],["upgrade",46]]],
+                ["row",[["upgrade",51],["upgrade",52],["upgrade",53],["upgrade",54],["upgrade",55],["upgrade",56]]],
+            ],
+            unlocked() {return hasUpgrade("d",36)}
         }
     }
-})
+    },
+    clickables: {
+         11: {
+            display() {return "Begin Drilling"},
+            canClick() {if (player.d.cand == 1) return true},
+            onClick() {
+                    player.d.cand = new Decimal(0)
+                    player.d.begin = new Decimal(1)
+            },      
+        },
+         12: {
+            display() {return "End Drilling"},
+            canClick() {if (player.d.cand == 0) return true},
+            onClick() {
+                    player.d.cand = new Decimal(1)
+                    player.d.md = new Decimal(0)
+                    player.d.begin = new Decimal(0)
+            },      
+        },
+    },
+    upgrades: {
+        11: {
+             title: "D-1",
+            description: "Unlock rusty drills",
+            cost: new Decimal(5)
+        },
+        12: {
+            title: "D-2",
+           description: "Point gain x2^1.01",
+           cost: new Decimal(6)
+        },
+        13: {
+            title: "D-3",
+            description: "Pure power gain x4^1.02",
+            cost: new Decimal(7)
+        },
+        14: {
+            title: "D-4",
+            description: "x2 drill bit gain",
+            cost: new Decimal(1.5e3),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm = new Decimal(2)
+            }
+
+        },
+        15: {
+            title: "D-5",
+            description: "x4 drill bit gain",
+            cost: new Decimal(2e3),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm = new Decimal(4)
+            }
+        },
+        16: {
+            title: "D-6",
+            description: "x8 drill bit gain",
+            cost: new Decimal(6e3),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm = new Decimal(8)
+            }
+        },
+        21: {
+            title: "D-7",
+            description: "x20 drill bit gain",
+            cost: new Decimal(1.5e4),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm = new Decimal(20)
+            }
+        },
+        22: {
+            title: "D-8",
+            description: "x65 drill bit gain",
+            cost: new Decimal(2e4),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm = new Decimal(65)
+            }
+        },
+        23: {
+            title: "D-9",
+            description: "Upgrade effect adds drill bits gain",
+            cost: new Decimal(4e4),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            effect() {
+                return player.d.points.add(1).pow(0.25)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        },
+        24: {
+            title: "D-10",
+            description: "Unlock wooden drills",
+            cost: new Decimal(5e6),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+        },
+        25: {
+            title: "D-11",
+            description: "Unlock stone drills",
+            cost: new Decimal(1e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+        },
+        26: {
+            title: "D-12",
+            description: "x2 drill mulitiplier",
+            cost: new Decimal(2e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.ub = player.d.ub = new Decimal(2)
+            }
+        },
+        31: {
+            title: "D-13",
+            description: "x4 drill mulitiplier",
+            cost: new Decimal(2.5e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.ub = player.d.ub = new Decimal(4)
+            },
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        32: {
+            title: "D-14",
+            description: "Gain more drill bits",
+            cost: new Decimal(3e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(100)
+            },
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        33: {
+            title: "D-15",
+            description: "Gain even more drill bits",
+            cost: new Decimal(3.5e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(1e4)
+            },
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        34: {
+            title: "D-16",
+            description: "More drill bits",
+            cost: new Decimal(5e7),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(1e5)
+            },
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        35: {
+            title: "D-17",
+            description: "Green drills? (Unlock iron drills)",
+            cost: new Decimal(1e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        36: {
+            title: "Mining (D-18)",
+            description: "Unlock Drilling",
+            cost: new Decimal(2e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",26)}
+        },
+        61: {
+            title: "D-19",
+            description: "Boost drill bits",
+            cost: new Decimal(2.5e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",56)},
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(1e6)
+            },
+        },
+        62: {
+            title: "D-20",
+            description: "Drills boost drill bits even more",
+            cost: new Decimal(3e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",56)},
+            effect() {
+                return player.d.points.add(1).pow(0.55)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        },
+        63: {
+            title: "D-21",
+            description: "Pure power gain x12^1.03",
+            cost: new Decimal(5e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",56)},
+        },
+        64: {
+            title: "D-22",
+            description: "Pure power gain x14^1.035",
+            cost: new Decimal(6e8),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",56)},
+        },
+        65: {
+            title: "Joules (D-23)",
+            description: "Unlock Energy",
+            cost: new Decimal(8),
+            unlocked() {return hasUpgrade("d",56)},
+        },
+        66: {
+            title: "D-24",
+            description: "Newtons boost drill gain",
+            cost: new Decimal(5e9),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",56)},
+        },
+        81: {
+            title: "D-25",
+            description: "Unlock gold drills",
+            cost: new Decimal(2e10),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+        },
+        82: {
+            title: "D-26",
+            description: "x1e3 bacteria gain",
+            cost: new Decimal(5.5e10),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+            onPurchase() {
+                player.ba.bactmul = new Decimal(1e3)
+            },
+        },
+        83: {
+            title: "D-27",
+            description: "x1e4 bacteria gain",
+            cost: new Decimal(1e11),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+            onPurchase() {
+                player.ba.bactmul = new Decimal(1e4)
+            },
+        },
+        84: {
+            title: "D-28",
+            description: "x1e6 bacteria gain",
+            cost: new Decimal(1.5e11),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+            onPurchase() {
+                player.ba.bactmul = new Decimal(1e6)
+            },
+        },
+        85: {
+            title: "D-29",
+            description: "x1e10 bacteria gain",
+            cost: new Decimal(3e11),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+            onPurchase() {
+                player.ba.bactmul = new Decimal(1e10)
+            },
+        },
+        86: {
+            title: "D-30",
+            description: "Newtons make drill bits cheaper",
+            cost: new Decimal(4e11),
+            currencyDisplayName: "Drill bits",
+            currencyInternalName: "db",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",66)},
+        },
+        41: {
+            title: "Shovel",
+            description: "Gain more drill bits",
+            cost: new Decimal(15),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.dbm = player.d.dbm.add(4e5)
+            },
+        },
+        42: {
+            title: "Drill",
+            description: "+x2 digging power",
+            cost: new Decimal(35),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(2)
+            },
+        },
+        43: {
+            title: "Jackhammer",
+            description: "+x4 digging power",
+            cost: new Decimal(40),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(4)
+            },
+        },
+        44: {
+            title: "Pickaxe",
+            description: "+x6 digging power",
+            cost: new Decimal(45),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(6)
+            },
+        },
+        45: {
+            title: "Dynamite",
+            description: "+x12 digging power",
+            cost: new Decimal(55),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(12)
+            },
+        },
+        46: {
+            title: "TNT",
+            description: "+x30 digging power",
+            cost: new Decimal(65),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",36)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(30)
+            },
+        },
+        51: {
+            title: "Super drill",
+            description: "+x140 digging power",
+            cost: new Decimal(140),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(140)
+            },
+        },
+        52: {
+            title: "Reinforced drill",
+            description: "+x300 digging power",
+            cost: new Decimal(160),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(300)
+            },
+        },
+        53: {
+            title: "Reinforced drill",
+            description: "+x600 digging power",
+            cost: new Decimal(180),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)},
+              onPurchase() {
+                player.d.mm = player.d.mm.add(600)
+            },
+        },
+        54: {
+            title: "Power Drill",
+            description: "Drills boost digging power",
+            cost: new Decimal(500),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)}
+        },
+        55: {
+            title: "XXL Pickaxe",
+            description: "+x2e3 digging power",
+            cost: new Decimal(700),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)},
+            onPurchase() {
+                player.d.mm = player.d.mm.add(2e3)
+            },
+        },
+        56: {
+            title: "Mega Jackhammer",
+            description: "+x1e4 digging power and more drills upgrades",
+            cost: new Decimal(1000),
+            currencyDisplayName: "Meters dug",
+            currencyInternalName: "md",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",46)},
+            onPurchase() {
+                player.d.mm = player.d.mm.add(1e4)
+            },
+        },
+        71: {
+            title: "Energetical",
+            description: "Joules boost energy gain",
+            cost: new Decimal(1000),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+        },
+        72: {
+            title: "Zap",
+            description: "Newtons boost joules",
+            cost: new Decimal(2500),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+        },
+        73: {
+            title: "Electrical",
+            description: "+x2 joules gain",
+            cost: new Decimal(6000),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(2)
+            },
+        },
+        74: {
+            title: "Shock",
+            description: "+x4 joules gain",
+            cost: new Decimal(6e4),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(4)
+            },
+        },
+        75: {
+            title: "Boosted",
+            description: "newtons boost drill bits and +x6 joules gain",
+            cost: new Decimal(2e5),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(6)
+            },
+        },
+        76: {
+            title: "POWERRR",
+            description: "+x20 joules gain",
+            cost: new Decimal(1e6),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",55)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(20)
+            },
+        },
+        91: {
+            title: "Infected Power",
+            description: "+x3 bacteria gain",
+            cost: new Decimal(1e7),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            onPurchase() {
+                player.ba.bactmul = player.ba.bactmul.add(3)
+            },
+        },
+        92: {
+            title: "Infected Energy",
+            description: "+x20 bacteria gain",
+            cost: new Decimal(5e7),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            onPurchase() {
+                player.ba.bactmul = player.ba.bactmul.add(3)
+            },
+        },
+        93: {
+            title: "Infected Joules",
+            description: "+x200 bacteria gain",
+            cost: new Decimal(1e8),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            onPurchase() {
+                player.ba.bactmul = player.ba.bactmul.add(3)
+            },
+        },
+        94: {
+            title: "Powered Joules",
+            description: "+x50 joules gain",
+            cost: new Decimal(1.25e8),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(50)
+            },
+        },
+        95: {
+            title: "Energetical Joules",
+            description: "+x500 joules gain",
+            cost: new Decimal(2e8),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            onPurchase() {
+                player.d.jm = player.d.jm.add(50)
+            },
+        },
+        96: {
+            title: "Infected Pure Power",
+            description: "Bacteria boosts pure power",
+            cost: new Decimal(2e9),
+            currencyDisplayName: "Joules",
+            currencyInternalName: "jo",
+            currencyLayer: "d",
+            unlocked() {return hasUpgrade("d",76)},
+            effect() {
+                return player.ba.bact.add(1).pow(0.3)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        },
+    },
+    buyables: {
+       11: {
+            title: "Rusty drills", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e3)
+                let amt = getBuyableAmount("d", 11)
+                let exp = amt.div(5)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Rusty drills boost energy gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+            },
+        
+            style: {
+                "background": "linear-gradient(to left, gold, brown)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.d.rd = player.d.rd.add(1)
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",11)}
+        }, 
+        12: {
+            title: "Wooden drills", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e6)
+                let amt = getBuyableAmount("d", 12)
+                let exp = amt.div(12)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Wooden drills boost pure power gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+            },
+        
+            style: {
+                "background": "linear-gradient(to right, brown, gray)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.d.wd = player.d.wd.add(1)
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",24)}
+        },
+        13: {
+            title: "Iron drills", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(1e7)
+                let amt = getBuyableAmount("d", 13)
+                let exp = amt.div(8)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Iron drills boost greenium gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+            },
+        
+            style: {
+                "background": "linear-gradient(to right, white, gray)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.d.ird = player.d.ird.add(1)
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",35)}
+        },
+        21: {
+            title: "Stone drills", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(2e6)
+                let amt = getBuyableAmount("d", 21)
+                let exp = amt.div(10)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Stone drills boost energy gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+            },
+        
+            style: {
+                "background": "linear-gradient(to left, gray, black)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.d.sd = player.d.sd.add(1)
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",25)}
+        },
+        22: {
+            title: "Gold drills", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(5e6)
+                let amt = getBuyableAmount("d", 22)
+                let exp = amt.div(7)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                return " Gold drills boost drill bits gain\n\
+                 Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+            },
+        
+            style: {
+                "background": "linear-gradient(to right, gold, orange)" ,
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                player.d.gd = player.d.gd.add(1)
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",81)}
+        }, 
+        51: {
+            title: "GAIN NEWTONS", // Optional, displayed at the top in a larger font
+            cost() {
+                let init = new Decimal(2e6)
+                let amt = getBuyableAmount("d", 51)
+                let exp = amt.div(11)
+                return init.pow(exp)
+            },
+            canAfford() { return player.d.db.gte(tmp[this.layer].buyables[this.id].cost) },
+            display() { // Everything else displayed in the buyable button after the title
+                x = tmp[this.layer].buyables[this.id].cost
+                return " Reset for\n\ "
+                + format(tmp[this.layer].buyables[this.id].cost/tmp[this.layer].buyables[this.id].cost*1.3) + " Newtons\n\
+                Cost: "  + format(tmp[this.layer].buyables[this.id].cost)+ " Drill bits"
+                
+                
+            },
+        
+            style: {
+                "background": "radial-gradient(gold, orange)" ,
+                width: "190px",
+                height: "130px"
+            },
+            buy() {
+                cost = tmp[this.layer].buyables[this.id].cost
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                if (tmp[this.layer].buyables[this.id].canAfford) {
+                player.d.db = player.d.db.sub(tmp[this.layer].buyables[this.id].cost)
+                player.d.newton = player.d.newton.add(tmp[this.layer].buyables[this.id].cost/tmp[this.layer].buyables[this.id].cost*1.3)
+                }
+               
+            },
+            unlocked() {return hasUpgrade("d",55)}
+        }, 
+    }
+}),
 addLayer("o", {
     name: "oxygen", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "OXY", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -1828,10 +2879,12 @@ addLayer("o", {
     layerShown() {
         if (hasUpgrade("ba",63)) return true
     },
+    autoPrestige() { return (hasUpgrade("o", 22)) },
     update(diff) {
-        if (player.o.points.gte(1)) player.o.ot = player.o.ot.sub(player.o.ol*diff)
+        if (player.o.points.gte(1) && !hasUpgrade("o",35)) player.o.ot = player.o.ot.sub(player.o.ol*diff)
         if (player.o.ot < 1) player.o.ot = new Decimal(0)
         if (player.o.ot < 1) player.points = new Decimal(0)
+        if (hasUpgrade("o",35)) player.o.ol = new Decimal(100)
         
     },
     branches: ['ba'],
@@ -1881,7 +2934,9 @@ clickables: {
             content: [
                 ["infobox", "oxygeninfo2"],
                 "blank",
-                ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14],["upgrade",15]]]
+                ["row",[["upgrade",11],["upgrade",12],["upgrade",13],["upgrade",14],["upgrade",15]]],
+                ["row",[["upgrade",21],["upgrade",22],["upgrade",23],["upgrade",24],["upgrade",25]]],
+                ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34],["upgrade",35]]]
                 
             ],
             
@@ -1924,6 +2979,86 @@ clickables: {
             description: "This new tank can hold so much oxygen! (You can max buy oxygen)",
             cost: new Decimal(330)
         },
+        21: {
+            title: "Green flow",
+            description: "Oxygen flows through greenium enhancing it (Oxygen boosts greenium)",
+            cost: new Decimal(2500),
+            unlocked() {return player.ev.points.gte(1e37) || hasUpgrade("ev",35)}
+        },
+        22: {
+            title: "Auto Tanks",
+            description: "Automate oxygen",
+            cost: new Decimal(3000),
+            unlocked() {return player.ev.points.gte(1e50) || hasUpgrade("ev",35)}
+        },
+        23: {
+            title: "TANK-001SP",
+            description: "oxygen boost points",
+            cost: new Decimal(3700),
+            unlocked() {return player.ev.points.gte(1e50) || hasUpgrade("ev",35)},
+            effect() {
+                return player.o.points.add(1).pow(0.6)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        },
+        24: {
+            title: "Mining Tanks",
+            description: "+x2 drill bit gain",
+            cost: new Decimal(3840),
+            unlocked() {return player.ev.points.gte(1e50) || hasUpgrade("ev",35)},
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(2)
+            }
+        },
+        25: {
+            title: "Mining Tanks II",
+            description: "+x4 drill bit gain",
+            cost: new Decimal(3870),
+            unlocked() {return player.ev.points.gte(1e50) || hasUpgrade("ev",35)},
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(4)
+            }
+        },
+        31: {
+            title: "Mining Tanks III",
+            description: "+x6 drill bit gain",
+            cost: new Decimal(4700),
+            unlocked() {return player.ev.points.gte(1e60) || hasUpgrade("ev",35)},
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(6)
+            }
+        },
+        32: {
+            title: "Mining Tanks IV",
+            description: "+x25 drill bit gain",
+            cost: new Decimal(4900),
+            unlocked() {return player.ev.points.gte(1e60) || hasUpgrade("ev",35)},
+            onPurchase() {
+                player.d.dbm = player.d.dbm.add(25)
+            }
+        },
+        33: {
+            title: "Mining Tanks V",
+            description: "Drill bit/s is boosted",
+            cost: new Decimal(5000),
+            unlocked() {return player.ev.points.gte(1e60) || hasUpgrade("ev",35)},
+            effect() {
+                return player.d.points.add(1).pow(0.55)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+        },
+        34: {
+            title: "bajkldjfaklds",
+            description: "nothing",
+            cost: new Decimal(5001),
+            unlocked() {return player.ev.points.gte(1e60) || hasUpgrade("ev",35)},
+        },
+        35: {
+            title: "FILLED",
+            description: "Oxygen tanks are always filled",
+            cost: new Decimal(5040),
+            unlocked() {return player.ev.points.gte(1e60) || hasUpgrade("ev",35)},
+        }
     },
     infoboxes: {
         oxygeninfo: {
@@ -1970,7 +3105,11 @@ addLayer("ev", {
         if (hasUpgrade("ev",23)) mult = mult.times(5)
         if (hasUpgrade("ev",34)) mult = mult.times(10)
         if (player.ev.green4.gte(1)) mult = mult.times(player.ev.green4).div(2)
-        if (player.ev.boosters.gte(1))mult = mult.times(player.ev.boosters)
+        if (player.d.ird.gte(1)) mult = mult.times(player.d.ird)
+        if (player.ev.boosters.gte(1)) mult = mult.times(player.ev.boosters)
+        if (hasUpgrade("ev",104)) mult = mult.times(player.ev.boosters).mul(5)
+        if (hasUpgrade("ev",105)) mult = mult.times(player.ev.boosters).mul(3)
+        if (hasUpgrade("o",21)) mult = mult.times(player.o.points).div(4)
         if (player.ev.gboost.gte(1))mult = mult.times(player.ev.gboost.mul(3))
         return mult
     },
@@ -1992,7 +3131,7 @@ addLayer("ev", {
         {key: "g", description: "G: Reset for Greenium", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     update() {
-        if (player.ev.green4 == 0) player.ev.green4 = player.ev.green4.add(2)
+        if (player.ev.green4 == 0) player.ev.green4 = player.ev.green4.add(1)
         setBuyableAmount('ev', 41, new Decimal(player.ev.boosters))
         setBuyableAmount('ev', 51, new Decimal(player.ev.gboost))
         if (player.ev.points.gte > 1e30) player.ev.points = player.ev.points.div(100)
@@ -2279,7 +3418,7 @@ addLayer("ev", {
         14: {
             title: "Green progress",
             description: "Unlock greenium milestones",
-            cost: new Decimal(30),  
+            cost: new Decimal(1),  
             unlocked() {return hasUpgrade("ev",12)},    
         },
         15: {
@@ -2311,7 +3450,7 @@ addLayer("ev", {
         23: {
             title: "Green boost",
             description: "x5 greenium gain",
-            cost: new Decimal(3.5e5),  
+            cost: new Decimal(1.5e5),  
             unlocked() {return hasUpgrade("ev",15)}, 
         },
         24: {
@@ -2413,6 +3552,42 @@ addLayer("ev", {
 
                     let color = "#03FFEB"
                     if (hasUpgrade("ev",103)) color = "#40B4DE"
+                    return color
+                    
+                }
+            },
+        },
+        104: {
+            title: "BOOST IV",
+            description: "Boosters boost greenium",
+            cost: new Decimal(18),  
+            currencyInternalName: "boosters",
+            currencyDisplayName: "Boosters",
+            currencyLayer: "ev",
+            unlocked() {return hasUpgrade("ev",25)}, 
+            style: {
+                "background-color"() {
+
+                    let color = "#03FFEB"
+                    if (hasUpgrade("ev",104)) color = "#40B4DE"
+                    return color
+                    
+                }
+            },
+        },
+        105: {
+            title: "BOOST V",
+            description: "Boosters boost greenium again sligtly",
+            cost: new Decimal(25),  
+            currencyInternalName: "boosters",
+            currencyDisplayName: "Boosters",
+            currencyLayer: "ev",
+            unlocked() {return hasUpgrade("ev",25)}, 
+            style: {
+                "background-color"() {
+
+                    let color = "#03FFEB"
+                    if (hasUpgrade("ev",105)) color = "#40B4DE"
                     return color
                     
                 }
@@ -2659,6 +3834,41 @@ addLayer("a", {
             name: "To the core",
             tooltip: "Get 1 Drill",
             done(){return player.d.points.gte(1)} 
+        },
+        61: {
+            name: "Rusty but still useful",
+            tooltip: "Get 5 Rusty Drills",
+            done(){return player.d.rd.gte(5)} 
+        },
+        62: {
+            name: "Is wood better?",
+            tooltip: "Get 1 Wooden drill",
+            done(){return player.d.wd.gte(1)} 
+        },
+        63: {
+            name: "At least it doesn't break",
+            tooltip: "Get 5 stone drill",
+            done(){return player.d.sd.gte(5)} 
+        },
+        64: {
+            name: "Stronger drills",
+            tooltip: "Get 1 iron drill",
+            done(){return player.d.ird.gte(1)} 
+        },
+        65: {
+            name: "Still not at china",
+            tooltip: "Dig 10m",
+            done(){return player.d.md.gte(10)} 
+        },
+        66: {
+            name: "Just keep digging",
+            tooltip: "Dig 5000m",
+            done(){return player.d.md.gte(5000)} 
+        },
+        67: {
+            name: "UNLIMITED POWER!!!",
+            tooltip: "Get 1 Newton",
+            done(){return player.d.newton.gte(1)} 
         }
     }
 })

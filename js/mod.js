@@ -12,8 +12,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.301",
-	name: "Greeny greens fix",
+	num: "0.4",
+	name: "Mining",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -57,14 +57,19 @@ function getPointGen() {
 	if (hasUpgrade('ba', 101)) gain = gain.times(upgradeEffect('ba', 101))
 	if (hasUpgrade('ba', 111)) gain = gain.times(upgradeEffect('ba', 111))
 	if (hasUpgrade('o', 13)) gain = gain.times(upgradeEffect('o', 13))
+	if (hasUpgrade('o', 23)) gain = gain.times(upgradeEffect('o', 23))
 	if (player.ba.water.gte(2)) gain = gain.times(player.ba.water).div(2)
 	if (player.ba.dirt.gte(2)) gain = gain.times(player.ba.dirt).div(1.75)
-	if (player.ev.green2.gte(1)) gain = gain.times(player.ev.green2)
+	if (player.ev.green2.gte(1)) gain = gain.times(player.ev.green2.mul(5))
+	if (player.d.rd.gte(1)) gain = gain.times(player.d.rd)
+	if (player.d.sd.gte(1)) gain = gain.times(player.d.sd).mul(player.d.sd).mul(1e8)
 	if (hasUpgrade('ev', 101)) gain = gain.times(player.ev.boosters).mul(100)
+	if (hasUpgrade('d', 12)) gain = gain.times(2).pow(1.01)
 	if (hasUpgrade('ev', 31)) gain = gain.times(upgradeEffect('ev', 31))
 	if (inChallenge("ba",11)) gain = gain.div(3)
 	if (inChallenge("ba",12)) gain = gain.div(2)
 	if (hasUpgrade('ev', 13)) gain = gain.times(upgradeEffect('ev', 13))
+	if (hasUpgrade('d', 71)) gain = gain.times(player.d.jo)
 	
 	
 
