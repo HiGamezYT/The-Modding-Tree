@@ -1,26 +1,24 @@
 let modInfo = {
-	name: "The ??? Tree",
+	name: "The Dice Tree",
 	id: "mymod",
 	author: "nobody",
-	pointsName: "points",
+	pointsName: "cash",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal (0), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Literally nothing",
+	num: "0.1",
+	name: "Rolling Addiction",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+	`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -34,6 +32,7 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
+	if (hasUpgrade('d',50))
 	return true
 }
 
