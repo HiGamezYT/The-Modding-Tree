@@ -747,9 +747,14 @@ addLayer("a", {
                     function() {return 'You have ' + format(player.a.points) + ' Achievements Points'},
                     {"color": "gold" , "font-size": "30px"}],
                     "blank",
-                    "achievements"
+                    ["row",[["achievement",11],["achievement",12],["achievement",13],["achievement",14],["achievement",15],["achievement",16]]],
             ],
             buttonStyle: {"border-color": "gold"},
+        },
+        "secret": {
+            content: [
+                  ["row",[["achievement",301],["achievement",302],["achievement",303],["achievement",304],["achievement",305],["achievement",306]]],
+            ]
         }
     },
     achievements: {
@@ -805,6 +810,15 @@ addLayer("a", {
             done(){return player.d.rainbowdice.gte(1)},
             style: {
                 "border-color": "gold"
+            }
+        },
+        301: {
+            name: "You'll literally never get this",
+            tooltip: "lol",
+            doneTooltip: "yeah never",
+            done(){return player.d.rainbowdice.gte(1e100)},
+            style: {
+                "border-color": "red"
             }
         }
     }
