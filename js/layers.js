@@ -479,7 +479,7 @@ addLayer("d", {
             canClick() {if (player.d.cooldown.gte(player.d.cb)) return true},
             onClick() {
                 player.d.random = Math.floor(Math.random() * player.d.maxr)
-                player.points = player.points.add(player.d.random*player.d.db*player.r.slb*player.d.goldboost*rainbowboost*1.25)
+                player.points = player.points.add(player.d.random*player.d.db*player.r.slb*player.d.goldboost*player.d.rainbowboost*1.25)
                 player.d.cooldown = new Decimal(0)
                 player.d.rolled = player.d.rolled.add(1)
             },
