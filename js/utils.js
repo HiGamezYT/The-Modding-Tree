@@ -108,6 +108,13 @@ function buyBuyable(layer, id) {
 	run(layers[layer].buyables[id].buy, layers[layer].buyables[id])
 	updateBuyableTemp(layer)
 }
+function buyBuyable2(layer, id) {
+	if (!player[layer].unlocked) return
+	if (!tmp[layer].buyables[id].unlocked) return
+
+	run(layers[layer].buyables[id].buy, layers[layer].buyables[id])
+	updateBuyableTemp(layer)
+}
 
 function clickClickable(layer, id) {
 	if (!player[layer].unlocked || tmp[layer].deactivated) return

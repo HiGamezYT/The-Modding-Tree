@@ -1,7 +1,7 @@
 let modInfo = {
 	name: "The Dice Tree",
 	id: "diceyay",
-	author: "nobody",
+	author: "hello",
 	pointsName: "cash",
 	modFiles: ["layers.js", "tree.js"],
 
@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "Rolling Addiction",
+	num: "0.2",
+	name: "More rolling addiction",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
