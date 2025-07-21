@@ -15,6 +15,7 @@ addLayer("c", {
             beep: false,
             thingy: "pointy",
             otherThingy: 10,
+            drop: "drip",
         }},
         color: "#4BDC13",
         requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -74,7 +75,6 @@ addLayer("c", {
                     if(hasMilestone(this.layer, this.id)) return {
                         'background-color': '#1111DD' 
                 }},
-        
                 },
         },
         challenges: {
@@ -95,7 +95,10 @@ addLayer("c", {
                 rewardDisplay() { return format(this.rewardEffect())+"x" },
                 countsAs: [12, 21], // Use this for if a challenge includes the effects of other challenges. Being in this challenge "counts as" being in these.
                 rewardDescription: "Says hi",
-                onComplete() {console.log("hiii")} // Called when you complete the challenge
+                onComplete() {console.log("hiii")}, // Called when you successfully complete the challenge
+                onEnter() {console.log("So challenging")},
+                onExit() {console.log("Sweet freedom!")},
+
             },
         }, 
         upgrades: {
@@ -105,6 +108,8 @@ addLayer("c", {
                 description: "Gain 1 Point every second.",
                 cost: new Decimal(1),
                 unlocked() { return player[this.layer].unlocked }, // The upgrade is only visible when this is true
+                branches: [12],
+                tooltip: "hi",
             },
             12: {
                 description: "Point generation is faster based on your unspent Lollipops.",
@@ -199,7 +204,7 @@ addLayer("c", {
             },
         },
         doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
-            if(layers[resettingLayer].row > this.row) layerDataReset(this.layer, ["points"]) // This is actually the default behavior
+            if(layers[resettingLayer].row > this.row) layerDataReset(this.layer, ["points"]) 
         },
         layerShown() {return true}, // Condition for when layer appears on the tree
         automate() {
@@ -218,9 +223,11 @@ addLayer("c", {
         microtabs: {
             stuff: {
                 first: {
-                    content: ["upgrades", ["display-text", function() {return "confirmed"}]]
+                    content: ["upgrades", ["display-text", function() {return "confirmed<br>" + player.c.drop}], ["drop-down", ["drop", ["drip", "drop"]]]]
                 },
                 second: {
+                    embedLayer: "f",
+
                     content: [["upgrade", 11],
                             ["row", [["upgrade", 11], "blank", "blank", ["upgrade", 11],]],
                         
@@ -237,7 +244,6 @@ addLayer("c", {
                 fillStyle: {'background-color' : "#FFFFFF"},
                 baseStyle: {'background-color' : "#696969"},
                 textStyle: {'color': '#04e050'},
-
                 borderStyle() {return {}},
                 direction: RIGHT,
                 width: 300,
@@ -285,7 +291,7 @@ addLayer("c", {
 
             },
         },
-
+        
         // Optional, lets you format the tab yourself by listing components. You can create your own components in v.js.
         tabFormat: {
             "main tab": {
@@ -295,20 +301,22 @@ addLayer("c", {
                     ["main-display",
                     "prestige-button", "resource-display",
                     ["blank", "5px"], // Height
-                    ["raw-html", function() {return "<button onclick='console.log(`yeet`)'>'HI'</button>"}],
+                    ["raw-html", function() {return "<button onclick='console.log(`yeet`); makeParticles(textParticle)'>'HI'</button>"}],
                     ["display-text", "Name your points!"],
                     ["text-input", "thingy"],
                     ["display-text",
-                        function() {return 'I have ' + format(player.points) + ' ' + player.c.thingy + ' points!'},
+                        function() {return 'I have ' + format(player.points) + ' ' + player[this.layer].thingy + ' points!'},
                         {"color": "red", "font-size": "32px", "font-family": "Comic Sans MS"}],
                     "h-line", "milestones", "blank", "upgrades", "challenges"],
+                glowColor: "blue",
+
             },
             thingies: {
                 prestigeNotify: true,
                 style() {return  {'background-color': '#222222'}},
                 buttonStyle() {return {'border-color': 'orange'}},
                 content:[ 
-                    ["buyables", ""], "blank",
+                    "buyables", "blank",
                     ["row", [
                         ["toggle", ["c", "beep"]], ["blank", ["30px", "10px"]], // Width, height
                         ["display-text", function() {return "Beep"}], "blank", ["v-line", "200px"],
@@ -321,6 +329,8 @@ addLayer("c", {
                     ["display-image", "discord.png"],],
             },
             jail: {
+                style() {return  {'background-color': '#222222'}},
+
                 content: [
                     ["infobox", "coolInfo"],
                     ["bar", "longBoi"], "blank",
@@ -343,7 +353,8 @@ addLayer("c", {
                     ["raw-html", function() {return "<h1> C O N F I R M E D </h1>"}], "blank",
                     ["microtabs", "stuff", {'width': '600px', 'height': '350px', 'background-color': 'brown', 'border-style': 'solid'}],
                     ["display-text", "Adjust how many points H gives you!"],
-                    ["slider", ["otherThingy", 1, 30]],
+                    ["slider", ["otherThingy", 1, 30]], "blank", ["upgrade-tree", [[11], 
+                    [12, 22, 22, 11]]]
                 ]
             }
 
@@ -353,7 +364,8 @@ addLayer("c", {
         }},
         nodeStyle() {return { // Style on the layer node
             'color': '#3325CC',
-            'text-decoration': 'underline' 
+            'text-decoration': 'underline',
+            'font-family': 'cursive'
         }},
         glowColor: "orange", // If the node is highlighted, it will be this color (default is red)
         componentStyles: {
@@ -362,159 +374,23 @@ addLayer("c", {
         },
         tooltip() { // Optional, tooltip displays when the layer is unlocked
             let tooltip = formatWhole(player[this.layer].points) + " " + this.resource
-            if (player[this.layer].buyables[11].gt(0)) tooltip += "<br><i>" + formatWhole(player[this.layer].buyables[11]) + " Exhancers</i>"
+            if (player[this.layer].buyables[11].gt(0)) tooltip += "<br><i><br><br><br>" + formatWhole(player[this.layer].buyables[11]) + " Exhancers</i>"
             return tooltip
         },
         shouldNotify() { // Optional, layer will be highlighted on the tree if true.
                          // Layer will automatically highlight if an upgrade is purchasable.
             return (player.c.buyables[11] == 1)
         },
+        marked: "discord.png",
         resetDescription: "Melt your points into ",
 })
 
-
-
-// This layer is mostly minimal but it uses a custom prestige type and a clickable
-addLayer("f", {
-    startData() { return {
-        unlocked: false,
-        points: new Decimal(0),
-        boop: false,
-        clickables: {[11]: "Start"}, // Optional default Clickable state
-    }},
-    color: "#FE0102",
-    requires() {return new Decimal(10)}, 
-    resource: "farm points", 
-    baseResource: "points", 
-    baseAmount() {return player.points},
-    type: "static",
-    exponent: 0.5,
-    base: 3,
-    roundUpCost: true,
-    canBuyMax() {return hasAchievement('a', 13)},
-
-    row: 1,
-    layerShown() {return true}, 
-    branches: ["c"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
-
-    tooltipLocked() { // Optional, tooltip displays when the layer is locked
-        return ("This weird farmer dinosaur will only see you if you have at least " + this.requires() + " points. You only have " + formatWhole(player.points))
-    },
-    midsection: [
-        "blank", ['display-image', 'https://images.beano.com/store/24ab3094eb95e5373bca1ccd6f330d4406db8d1f517fc4170b32e146f80d?auto=compress%2Cformat&dpr=1&w=390'],
-        ["display-text", "Bork bork!"]
-    ],
-    // The following are only currently used for "custom" Prestige type:
-    prestigeButtonText() { //Is secretly HTML
-        if (!this.canBuyMax()) return "Hi! I'm a <u>weird dinosaur</u> and I'll give you a Farm Point in exchange for all of your points and lollipops! (At least " + formatWhole(tmp[this.layer].nextAt) + " points)"
-        if (this.canBuyMax()) return "Hi! I'm a <u>weird dinosaur</u> and I'll give you <b>" + formatWhole(tmp[this.layer].resetGain) + "</b> Farm Points in exchange for all of your points and lollipops! (You'll get another one at " + formatWhole(tmp[this.layer].nextAtDisp) + " points)"
-    },
-    getResetGain() {
-        return getResetGain(this.layer, useType = "static")
-    },
-    getNextAt(canMax=false) { //  
-        return getNextAt(this.layer, canMax, useType = "static")
-    },
-    canReset() {
-        return tmp[this.layer].baseAmount.gte(tmp[this.layer].nextAt)
-    },
-    // This is also non minimal, a Clickable!
-    clickables: {
-
-        masterButtonPress() {
-            if (getClickableState(this.layer, 11) == "Borkened...")
-                player[this.layer].clickables[11] = "Start"
-        },
-        masterButtonText() {return (getClickableState(this.layer, 11) == "Borkened...") ? "Fix the clickable!" : "Does nothing"}, // Text on Respec button, optional
-        11: {
-            title: "Clicky clicky!", // Optional, displayed at the top in a larger font
-            display() { // Everything else displayed in the buyable button after the title
-                let data = getClickableState(this.layer, this.id)
-                return "Current state:<br>" + data
-            },
-            unlocked() { return player[this.layer].unlocked }, 
-            canClick() {
-                return getClickableState(this.layer, this.id) !== "Borkened..."},
-            onClick() { 
-                switch(getClickableState(this.layer, this.id)){
-                    case "Start":
-                        player[this.layer].clickables[this.id] = "A new state!"
-                        break;
-                    case "A new state!":
-                        player[this.layer].clickables[this.id] = "Keep going!"
-                        break;
-                    case "Keep going!":
-                        player[this.layer].clickables[this.id] = "Maybe that's a bit too far..."
-                        break;                        
-                    case "Maybe that's a bit too far...":
-                        player[this.layer].clickables[this.id] = "Borkened..."
-                        break;
-                    default:
-                        player[this.layer].clickables[this.id] = "Start"
-                        break;
-                }
-            },
-            onHold(){
-                console.log("Clickkkkk...")
-            },
-            style() {
-                switch(getClickableState(this.layer, this.id)){
-                    case "Start":
-                        return {'background-color': 'green'}
-                        break;
-                    case "A new state!":
-                        return {'background-color': 'yellow'}
-                        break;
-                    case "Keep going!":
-                        return {'background-color': 'orange'}
-                        break;                        
-                    case "Maybe that's a bit too far...":
-                        return {'background-color': 'red'}
-                        break;
-                    default:
-                        return {}
-                        break;
-            }},
-        },
-    },
-
-}, 
-)
-
-// A side layer with achievements, with no prestige
-addLayer("a", {
-        startData() { return {
-            unlocked: true,
-			points: new Decimal(0),
-        }},
-        color: "yellow",
-        resource: "achievement power", 
-        row: "side",
-        tooltip() { // Optional, tooltip displays when the layer is locked
-            return ("Achievements")
-        },
-        achievementPopups: true,
-        achievements: {
-            11: {
-                image: "discord.png",
-                name: "Get me!",
-                done() {return true}, // This one is a freebie
-                goalTooltip: "How did this happen?", // Shows when achievement is not completed
-                doneTooltip: "You did it!", // Showed when the achievement is completed
-            },
-            12: {
-                name: "Impossible!",
-                done() {return false},
-                goalTooltip: "Mwahahaha!", // Shows when achievement is not completed
-                doneTooltip: "HOW????", // Showed when the achievement is completed
-                textStyle: {'color': '#04e050'},
-            },
-            13: {
-                name: "EIEIO",
-                done() {return player.f.points.gte(1)},
-                tooltip: "Get a farm point.\n\nReward: The dinosaur is now your friend (you can max Farm Points).", // Showed when the achievement is completed
-                onComplete() {console.log("Bork bork bork!")}
-            },
-        },
-    }, 
-)
+const textParticle = {
+    spread: 20,
+    gravity: 0,
+    time: 3,
+    speed: 0,
+    text: function() { return "<h1 style='color:yellow'>" + format(player.points)},
+    offset: 30,
+    fadeInTime: 1,
+}
