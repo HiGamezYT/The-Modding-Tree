@@ -1,27 +1,27 @@
 let modInfo = {
-	name: "The ??? Tree",
-	author: "nobody",
-	pointsName: "points",
+	name: "An Expedition To Mars",
+	author: "Idle Gaming",
+	pointsName: "energy",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal (1), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
 	num: "0.0",
-	name: "Literally nothing",
+	name: "Project M.E.P (Mars Expedition Program)",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
 	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+		- You were the only one sent to mars. It gets pretty lonely out here...<br>
+		- Enjoy your stay.`
 
-let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
+let winText = `You've completed the tasks you needed to complete! Good job.`
 
 // If you add new functions anywhere inside of a layer, and those functions have an effect when called, add them here.
 // (The ones here are examples, all official functions are already taken care of)
@@ -33,6 +33,7 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
+	if (hasUpgrade('mb',11))
 	return true
 }
 
@@ -41,7 +42,13 @@ function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
-	let gain = new Decimal(1)
+	let gain = new Decimal(0.05)
+    gain = gain.times(Math.max(Math.log(player.mb.temperature.toNumber() + 81) / Math.log(126), 0.1));
+	if (hasUpgrade('mb', 12)) gain = gain.times(upgradeEffect('mb', 12))
+	if (hasUpgrade('mb', 24)) gain = gain.times(upgradeEffect('mb', 24))
+	if (hasUpgrade('o', 32)) gain = gain.times(upgradeEffect('o', 32))
+	if (hasUpgrade('mb', 21)) gain = gain.times(2)
+	if (hasUpgrade('mb', 22)) gain = gain.times(3)
 	return gain
 }
 
