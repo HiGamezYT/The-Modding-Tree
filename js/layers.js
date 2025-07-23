@@ -322,7 +322,7 @@ addLayer("o", {
     layerShown(){return hasUpgrade('mb',23)},
     branches: ["mb"],
     update(diff) {
-    if (hasUpgrade('mb',25)) {player.o.points = player.o.points.plus(new Decimal(Math.log(player.mb.points.div(2))).times(diff))}
+    if (hasUpgrade('o',33)) {player.o.points = player.o.points.plus(new Decimal(Math.log(player.mb.points.div(2))).times(diff))}
     if (player.o.solarstat.eq(1) && player.mb.night.eq(0)) {
         if (player.o.solartime.gt(0)) {
             player.o.js = new Decimal(player.o.jsg);
@@ -421,7 +421,12 @@ addLayer("o", {
                 "main-display",
                 ["raw-html", function() {
                     let dis = 'You are currently generating ' + format(Math.log10(player.mb.points.div(2))) + ' <span style="color: #008830ff;">Research Points/s </span> <i>You generate research points based on how many volts you have: <span style="color: #b50000ff;">log(volts/2)</span>'
-                    return dis
+                    let dis2 = 'You are currently generating ' + format(Math.log10(player.mb.points.div(2))*upgradeEffect('o',33)) + ' <span style="color: #008830ff;">Research Points/s </span> <i>You generate research points based on how many volts you have: <span style="color: #b50000ff;">log(volts/2)</span>'
+                    if (hasUpgrade('o',33)) {
+                        return dis2
+                    } else {
+                        return dis
+                    }
                 }],
                 //format(Math.log10(player.mb.points.div(2))*upgradeEffect('o',33))
                 ["row",[["upgrade",11]]],
