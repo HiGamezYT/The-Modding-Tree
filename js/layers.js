@@ -319,17 +319,23 @@ addLayer("o", {
         return new Decimal(1)
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return hasUpgrade('mb',23)},
+    layerShown(){return hasUpgrade('mb',23) || hasUpgrade('mb',23)},
     branches: ["mb"],
     update(diff) {
-    if (hasUpgrade('o',33)) {player.o.points = player.o.points.plus(new Decimal(Math.log(player.mb.points.div(2))).times(diff))}
+   if (player.mb.points.gte(1)) {
+    if (hasUpgrade('mb', 25)) {
+        let gain = player.mb.points.div(1.5).log10().max(0).sqrt();
+        if (hasUpgrade('o', 33)) gain = gain.times(upgradeEffect('o', 33));
+        if (hasUpgrade('o', 34)) gain = gain.times(upgradeEffect('o', 34));
+        player.o.points = player.o.points.plus(gain.times(diff));
+    }
+}
     if (player.o.solarstat.eq(1) && player.mb.night.eq(0)) {
         if (player.o.solartime.gt(0)) {
             player.o.js = new Decimal(player.o.jsg);
             player.mb.joules = player.mb.joules.plus(player.o.js.times(diff));
             player.o.solartime = player.o.solartime.minus(diff);
         } else {
-            // Time ran out, stop generation
             player.o.solartime = new Decimal(0);
             player.o.solarstat = new Decimal(0); 
             player.o.js = new Decimal(0);
@@ -419,16 +425,20 @@ addLayer("o", {
         "RESEARCH TREE": {
             content: [
                 "main-display",
-                ["raw-html", function() {
-                    let dis = 'You are currently generating ' + format(Math.log10(player.mb.points.div(2))) + ' <span style="color: #008830ff;">Research Points/s </span> <i>You generate research points based on how many volts you have: <span style="color: #b50000ff;">log(volts/2)</span>'
-                    let dis2 = 'You are currently generating ' + format(Math.log10(player.mb.points.div(2))*upgradeEffect('o',33)) + ' <span style="color: #008830ff;">Research Points/s </span> <i>You generate research points based on how many volts you have: <span style="color: #b50000ff;">log(volts/2)</span>'
-                    if (hasUpgrade('o',33)) {
-                        return dis2
-                    } else {
-                        return dis
-                    }
-                }],
-                //format(Math.log10(player.mb.points.div(2))*upgradeEffect('o',33))
+              ["raw-html", function () {
+    if (!hasUpgrade('mb', 25)) {
+        return 'You are currently generating 0 <span style="color: #008830ff;">Research Points/s </span>' +
+               ' <i>You generate research points based on how many volts you have: ' +
+               '<span style="color: #b50000ff;">sqrt(log(volts/1.5))</span>';
+    }
+    let gain = player.mb.points.div(1.5).log10().max(0).sqrt();
+    if (hasUpgrade('o', 33)) gain = gain.times(upgradeEffect('o', 33));
+    if (hasUpgrade('o', 34)) gain = gain.times(upgradeEffect('o', 34));
+    return 'You are currently generating ' + format(gain) + 
+        ' <span style="color: #008830ff;">Research Points/s </span>' +
+        ' <i>You generate research points based on how many volts you have: ' +
+        '<span style="color: #b50000ff;">sqrt(log(volts/1.5))</span>';
+}],
                 ["row",[["upgrade",11]]],
                 ["row",[["upgrade",21],["upgrade",22]]],
                 ["row",[["upgrade",31],["upgrade",32],["upgrade",33],["upgrade",34]]]
@@ -439,7 +449,7 @@ addLayer("o", {
         11: {
             title: "Low Maintenance",
             description: "Cost for the startup: 500 -> 400 <i>(Who uses these solar panels anyway?)</i>",
-            cost: new Decimal(50),
+            cost: new Decimal(20),
             onPurchase() {
                 player.o.c = new Decimal(400)
             }
@@ -447,7 +457,7 @@ addLayer("o", {
         21: {
             title: "Low Maintenance II",
             description: "Cost for the startup: 400 -> 300",
-            cost: new Decimal(50),
+            cost: new Decimal(20),
             onPurchase() {
                 player.o.c = new Decimal(300)
             },
@@ -457,7 +467,7 @@ addLayer("o", {
          22: {
             title: "Longer Duration",
             description: "Duration of the solar panel: 10 -> 15",
-            cost: new Decimal(50),
+            cost: new Decimal(20),
             onPurchase() {
                 player.o.duration = new Decimal(15)
             },
@@ -467,40 +477,45 @@ addLayer("o", {
         31: {
             title: "Longer Duration II",
             description: "Duration of the solar panel: 15 -> 20",
-            cost: new Decimal(500),
+            cost: new Decimal(50),
             onPurchase() {
                 player.o.duration = new Decimal(20)
             },
-            branches: [22],
+            branches: [21,22],
             unlocked() {return hasUpgrade('o',21) || hasUpgrade('o',22)},
         },
         32: {
             title: "Work Smarter Not Harder",
             description: "Research Points boost the amonut of energy you get",
-            cost: new Decimal(75),
-            onPurchase() {
-                player.o.duration = new Decimal(20)
-            },
+            cost: new Decimal(50),
             unlocked() {return hasUpgrade('o',21) || hasUpgrade('o',22)},
             effect() {
                 return player[this.layer].points.add(1).pow(0.05)
             },
             effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
-            branches: [22]
+            branches: [21,22]
         },
         33: {
             title: "Intelligence I",
             description: "Volts boosts research points",
-            cost: new Decimal(75),
-            onPurchase() {
-                player.o.duration = new Decimal(20)
-            },
+            cost: new Decimal(50),
             unlocked() {return hasUpgrade('o',21) || hasUpgrade('o',22)},
             effect() {
                 return player.mb.points.add(1).pow(0.1)
             },
             effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
-            branches: [22]
+            branches: [21,22]
+        },
+        34: {
+            title: "Intelligence II",
+            description: "Amps boosts research points",
+            cost: new Decimal(100),
+            unlocked() {return hasUpgrade('o',21) || hasUpgrade('o',22)},
+            effect() {
+                return player.mb.amps.add(1).pow(0.5)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+            branches: [21,22]
         }
     },
     achievements: {

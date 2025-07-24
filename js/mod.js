@@ -12,11 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
+	num: "0.0001",
 	name: "Project M.E.P (Mars Expedition Program)",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h3>v0.0001</h3><br>
+		- Fixed the research tree... hopefully. (The upgrade effects should work now!)<br>
+		- Along with that I added 1 new research tree upgrade
 	<h3>v0.0</h3><br>
 		- You were the only one sent to mars. It gets pretty lonely out here...<br>
 		- Enjoy your stay.`
